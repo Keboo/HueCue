@@ -42,5 +42,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="OpenCvSharp4.Windows" />
+    <PackageReference Include="OpenCvSharp4.Extensions" />
   </ItemGroup>
 </Project>

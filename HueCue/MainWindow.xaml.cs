@@ -17,6 +17,21 @@ public partial class MainWindow
 
     private void OnClose(object sender, ExecutedRoutedEventArgs e)
     {
+        // Dispose of the ViewModel to clean up video resources
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            viewModel.Dispose();
+        }
         Close();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        // Ensure cleanup on window close
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            viewModel.Dispose();
+        }
+        base.OnClosed(e);
     }
 }

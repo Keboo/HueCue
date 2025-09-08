@@ -6,59 +6,57 @@ namespace HueCue.Tests;
 public partial class MainWindowViewModelTests
 {
     [Fact]
-    public void IncrementCounterCommand_Execute_IncrementsCount()
+    public void Constructor_SetsDefaultValues()
     {
-        //Arrange
+        //Arrange & Act
         AutoMocker mocker = new();
-
         MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
 
-        int initialCount = viewModel.Count;
-
-        //Act
-        viewModel.IncrementCountCommand.Execute(null);
-
         //Assert
-        Assert.Equal(initialCount + 1, viewModel.Count);
-    }
-
-    [Theory]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(2, true)]
-    [InlineData(3, true)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(6, false)]
-    public void IncrementCounterCommand_CanExecute_IndicatesIfCountIsLessThanFive(int count, bool expected)
-    {
-        //Arrange
-        AutoMocker mocker = new();
-
-        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-
-        viewModel.Count = count;
-
-        //Act
-        bool canExecute = viewModel.IncrementCountCommand.CanExecute(null);
-
-        //Assert
-        Assert.Equal(expected, canExecute);
+        Assert.Null(viewModel.VideoSource);
+        Assert.Null(viewModel.HistogramSource);
+        Assert.Null(viewModel.CurrentVideoFile);
+        Assert.False(viewModel.IsPlaying);
+        Assert.False(viewModel.HasVideo);
     }
 
     [Fact]
-    public void ClearCounterCommand_Execute_ClearsCount()
+    public void PlayPauseCommand_CanExecute_ReturnsFalseWhenNoVideo()
     {
         //Arrange
         AutoMocker mocker = new();
-
         MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-        viewModel.Count = 42;
 
         //Act
-        viewModel.ClearCountCommand.Execute(null);
+        bool canExecute = viewModel.PlayPauseCommand.CanExecute(null);
 
         //Assert
-        Assert.Equal(0, viewModel.Count);
+        Assert.False(canExecute);
+    }
+
+    [Fact]
+    public void OpenVideoFileCommand_CanAlwaysExecute()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act
+        bool canExecute = viewModel.OpenVideoFileCommand.CanExecute(null);
+
+        //Assert
+        Assert.True(canExecute);
+    }
+
+    [Fact]
+    public void Dispose_DoesNotThrowException()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act & Assert
+        var exception = Record.Exception(() => viewModel.Dispose());
+        Assert.Null(exception);
     }
 }
