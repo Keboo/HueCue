@@ -22,6 +22,20 @@ Built with:
 - CommunityToolkit.Mvvm for MVVM pattern
 - Material Design themes
 
+## Deployment
+
+This application uses [Velopack](https://velopack.io/) for automatic updates:
+
+- **Building**: Use the "Build and Publish HueCue with Velopack" GitHub Actions workflow (workflow_dispatch)
+- **Updates**: The app automatically checks for updates on startup
+- **Manual Updates**: Use the "Check for Updates" command in the application
+- **Version**: Starting at 1.0.0, managed in `HueCue.csproj`
+
+To deploy a new version:
+1. Update the version in `HueCue/HueCue.csproj`
+2. Run the "Build and Publish HueCue with Velopack" workflow manually via GitHub Actions
+3. Requires `VELOPACK_API_KEY` secret configured in repository settings
+
 ---
 
 # Original WPF app template
