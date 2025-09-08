@@ -13,23 +13,29 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <!-- https://learn.microsoft.com/nuget/consume-packages/Central-Package-Management?WT.mc_id=DT-MVP-5003472#transitive-pinning -->
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <AvaloniaVersion>11.3.5</AvaloniaVersion>
   </PropertyGroup>
   <!--
   This defines the set of centrally managed packages.
   This would typically list all NuGet packages used within this solution.
   -->
   <ItemGroup>
-    <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Moq.AutoMock" Version="3.5.0" />
+    <PackageVersion Include="OpenCvSharp4.Windows" Version="4.11.0.20250507" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
   </ItemGroup>
 </Project>
