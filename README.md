@@ -1,4 +1,30 @@
-# WPF app template
+# HueCue - Video Histogram Viewer
+A WPF application for viewing video files with real-time histogram overlays.
+
+## Features
+
+- **Video Playback**: Supports multiple video formats (MP4, AVI, MOV, MKV, WMV, FLV, WebM)
+- **Real-time Histogram**: RGB histogram visualization overlaid on video
+- **Performance Optimized**: Histogram updates every 1 second for optimal performance
+- **User-friendly Interface**: Simple menu-driven interface
+
+## Usage
+
+1. **Open Video**: Use `File > Open Video...` to select a video file
+2. **Playback Control**: Use `Playback > Play/Pause` to control video playback
+3. **Histogram View**: The RGB histogram appears in the top-right corner of the video
+
+## Technical Details
+
+Built with:
+- .NET 8.0 WPF
+- OpenCvSharp4 for video processing
+- CommunityToolkit.Mvvm for MVVM pattern
+- Material Design themes
+
+---
+
+# Original WPF app template
 This template creates a full WPF application, along with unit tests.
 
 ## Template
