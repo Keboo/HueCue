@@ -25,9 +25,9 @@
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
       <MenuItem Header="_Playback">
-        <!--<MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
+        <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
                   Command="{Binding PlayPauseCommand}" 
-                  IsEnabled="{Binding HasVideo}"/>-->
+                  IsEnabled="{Binding HasVideo}"/>
         <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="60" IsEnabled="{Binding HasVideo}"/>
         <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="10" IsEnabled="{Binding HasVideo}"/>
       </MenuItem>
