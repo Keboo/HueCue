@@ -35,6 +35,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasVideo;
 
+    [ObservableProperty]
+    private HistogramOverlay _overlay = HistogramOverlay.Overlay;
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
@@ -57,6 +60,12 @@ public partial class MainWindowViewModel : ObservableObject
         {
             LoadVideoFile(openFileDialog.FileName);
         }
+    }
+
+    [RelayCommand]
+    private void SetOverlay(HistogramOverlay overlay)
+    {
+        Overlay = overlay;
     }
 
     private void LoadVideoFile(string filePath)

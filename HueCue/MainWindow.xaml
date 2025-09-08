@@ -10,6 +10,7 @@
         Title="HueCue - Video Histogram Viewer" Height="450" Width="800">
   <Window.Resources>
     <local:BoolToPlayPauseTextConverter x:Key="PlayPauseTextConverter"/>
+    <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -24,12 +25,30 @@
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem Header="Overlay Histogram" IsCheckable="True" 
+                  CommandParameter="{x:Static local:HistogramOverlay.Overlay}"
+                  Command="{Binding SetOverlayCommand}"
+                  IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Overlay}, Mode=OneWay}"
+                  />
+        <MenuItem Header="Side by Side Histogram" IsCheckable="True" 
+                  CommandParameter="{x:Static local:HistogramOverlay.Right}"
+                  Command="{Binding SetOverlayCommand}"
+                  IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Right}, Mode=OneWay}"
+                  />
+
+        <MenuItem Header="Stacked Histogram" IsCheckable="True" 
+                  CommandParameter="{x:Static local:HistogramOverlay.Below}"
+                  Command="{Binding SetOverlayCommand}"
+                  IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Below}, Mode=OneWay}"
+                  />
+      </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
                   Command="{Binding PlayPauseCommand}" 
                   IsEnabled="{Binding HasVideo}"/>
-        <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="60" IsEnabled="{Binding HasVideo}"/>
-        <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="10" IsEnabled="{Binding HasVideo}"/>
+        <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="300" IsEnabled="{Binding HasVideo}"/>
+        <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="30" IsEnabled="{Binding HasVideo}"/>
       </MenuItem>
       <MenuItem Header="_Help">
         <MenuItem Header="_Check for Updates..." Command="{Binding CheckForUpdatesCommand}"/>
@@ -39,10 +58,50 @@
     
     <!-- Main content area with video and histogram -->
     <Grid Grid.Row="1">
+      <Grid.RowDefinitions>
+        <RowDefinition />
+        <RowDefinition>
+          <RowDefinition.Style>
+            <Style TargetType="RowDefinition">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Overlay}">
+                  <Setter Property="Height" Value="0" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Right}">
+                  <Setter Property="Height" Value="0" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Below}">
+                  <Setter Property="Height" Value="*" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </RowDefinition.Style>
+        </RowDefinition>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+        <ColumnDefinition>
+          <ColumnDefinition.Style>
+            <Style TargetType="ColumnDefinition">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Overlay}">
+                  <Setter Property="Width" Value="0" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Right}">
+                  <Setter Property="Width" Value="*" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Below}">
+                  <Setter Property="Width" Value="0" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ColumnDefinition.Style>
+        </ColumnDefinition>
+      </Grid.ColumnDefinitions>
       <!-- Video player -->
       <Image x:Name="VideoImage" 
              Source="{Binding VideoSource}"
-             Stretch="Uniform"
+             Stretch="Fill"
              HorizontalAlignment="Center"
              VerticalAlignment="Center"/>
       
@@ -50,11 +109,32 @@
       <Image x:Name="HistogramImage"
              Source="{Binding HistogramSource}"
              Stretch="Fill"
-             Width="{Binding ActualWidth, ElementName=VideoImage}"
-             Height="{Binding ActualHeight, ElementName=VideoImage}"
              Margin="10"
-             Opacity="0.8"/>
-      
+             Opacity="0.8">
+        <Image.Style>
+          <Style TargetType="Image">
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Overlay}">
+                <Setter Property="Grid.Column" Value="0" />
+                <Setter Property="Grid.Row" Value="0" />
+                <Setter Property="Width" Value="{Binding ActualWidth, ElementName=VideoImage}" />
+                <Setter Property="Height" Value="{Binding ActualHeight, ElementName=VideoImage}" />
+              </DataTrigger>
+              <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Right}">
+                <Setter Property="Grid.Column" Value="1" />
+                <Setter Property="Grid.Row" Value="0" />
+                <Setter Property="Height" Value="{Binding ActualHeight, ElementName=VideoImage}" />
+              </DataTrigger>
+              <DataTrigger Binding="{Binding Overlay}" Value="{x:Static local:HistogramOverlay.Below}">
+                <Setter Property="Grid.Column" Value="0" />
+                <Setter Property="Grid.Row" Value="1" />
+                <Setter Property="Width" Value="{Binding ActualWidth, ElementName=VideoImage}" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Image.Style>
+      </Image>
+
       <!-- Status text when no video is loaded -->
       <TextBlock Text="No video loaded. Use File > Open Video... to load a video file."
                  FontSize="16"

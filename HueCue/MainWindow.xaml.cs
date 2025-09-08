@@ -34,4 +34,9 @@ public partial class MainWindow
         }
         base.OnClosed(e);
     }
+
+    private void MenuItem_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+
+    }
 }
