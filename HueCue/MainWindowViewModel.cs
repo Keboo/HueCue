@@ -277,7 +277,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         try
         {
-            var updateManager = new UpdateManager();
+            UpdateManager updateManager = new(new Velopack.Sources.VelopackFlowSource());
             if (updateManager.IsInstalled)
             {
                 var updateInfo = await updateManager.CheckForUpdatesAsync();
