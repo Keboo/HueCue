@@ -161,82 +161,104 @@ public partial class MainWindowViewModel : ObservableObject
 
     private Mat CalculateHistogram(Mat frame)
     {
-        // Convert BGR to RGB for proper color representation
-        var rgbFrame = new Mat();
-        Cv2.CvtColor(frame, rgbFrame, ColorConversionCodes.BGR2RGB);
-
-        // Split channels
-        var channels = Cv2.Split(rgbFrame);
-
-        // Calculate histogram for each channel
-        const int histSize = 256;
-        const int histWidth = 512;
-        const int histHeight = 400;
-        const int binWidth = histWidth / histSize;
-
-        var histImage = new Mat(histHeight, histWidth, MatType.CV_8UC3, Scalar.All(0));
-
-        var histRange = new Rangef(0, 256);
-        var ranges = new[] { histRange };
-
-        var redHist = new Mat();
-        var greenHist = new Mat();
-        var blueHist = new Mat();
-
-        Cv2.CalcHist(new[] { channels[0] }, new[] { 0 }, null, redHist, 1, new[] { histSize }, ranges);
-        Cv2.CalcHist(new[] { channels[1] }, new[] { 0 }, null, greenHist, 1, new[] { histSize }, ranges);
-        Cv2.CalcHist(new[] { channels[2] }, new[] { 0 }, null, blueHist, 1, new[] { histSize }, ranges);
-
-        // Normalize histograms
-        Cv2.Normalize(redHist, redHist, 0, histImage.Rows, NormTypes.MinMax, -1);
-        Cv2.Normalize(greenHist, greenHist, 0, histImage.Rows, NormTypes.MinMax, -1);
-        Cv2.Normalize(blueHist, blueHist, 0, histImage.Rows, NormTypes.MinMax, -1);
-
-        // Draw histogram
-        for (int i = 1; i < histSize; i++)
+        try
         {
-            var redVal = (int)redHist.At<float>(i);
-            var greenVal = (int)greenHist.At<float>(i);
-            var blueVal = (int)blueHist.At<float>(i);
+            // Convert BGR to RGB for proper color representation
+            var rgbFrame = new Mat();
+            Cv2.CvtColor(frame, rgbFrame, ColorConversionCodes.BGR2RGB);
 
-            Cv2.Line(histImage,
-                new Point(binWidth * (i - 1), histHeight - (int)redHist.At<float>(i - 1)),
-                new Point(binWidth * i, histHeight - redVal),
-                Scalar.Red, 2);
+            // Split channels
+            var channels = Cv2.Split(rgbFrame);
 
-            Cv2.Line(histImage,
-                new Point(binWidth * (i - 1), histHeight - (int)greenHist.At<float>(i - 1)),
-                new Point(binWidth * i, histHeight - greenVal),
-                Scalar.Green, 2);
+            // Calculate histogram for each channel
+            const int histSize = 256;
+            const int histWidth = 512;
+            const int histHeight = 400;
+            const int binWidth = histWidth / histSize;
 
-            Cv2.Line(histImage,
-                new Point(binWidth * (i - 1), histHeight - (int)blueHist.At<float>(i - 1)),
-                new Point(binWidth * i, histHeight - blueVal),
-                Scalar.Blue, 2);
+            var histImage = new Mat(histHeight, histWidth, MatType.CV_8UC3, Scalar.All(0));
+
+            var histRange = new Rangef(0, 256);
+            var ranges = new[] { histRange };
+
+            var redHist = new Mat();
+            var greenHist = new Mat();
+            var blueHist = new Mat();
+
+            Cv2.CalcHist(new[] { channels[0] }, new[] { 0 }, null, redHist, 1, new[] { histSize }, ranges);
+            Cv2.CalcHist(new[] { channels[1] }, new[] { 0 }, null, greenHist, 1, new[] { histSize }, ranges);
+            Cv2.CalcHist(new[] { channels[2] }, new[] { 0 }, null, blueHist, 1, new[] { histSize }, ranges);
+
+            // Normalize histograms
+            Cv2.Normalize(redHist, redHist, 0, histImage.Rows, NormTypes.MinMax, -1);
+            Cv2.Normalize(greenHist, greenHist, 0, histImage.Rows, NormTypes.MinMax, -1);
+            Cv2.Normalize(blueHist, blueHist, 0, histImage.Rows, NormTypes.MinMax, -1);
+
+            // Draw histogram
+            for (int i = 1; i < histSize; i++)
+            {
+                var redVal = (int)redHist.At<float>(i);
+                var greenVal = (int)greenHist.At<float>(i);
+                var blueVal = (int)blueHist.At<float>(i);
+
+                Cv2.Line(histImage,
+                    new Point(binWidth * (i - 1), histHeight - (int)redHist.At<float>(i - 1)),
+                    new Point(binWidth * i, histHeight - redVal),
+                    Scalar.Red, 2);
+
+                Cv2.Line(histImage,
+                    new Point(binWidth * (i - 1), histHeight - (int)greenHist.At<float>(i - 1)),
+                    new Point(binWidth * i, histHeight - greenVal),
+                    Scalar.Green, 2);
+
+                Cv2.Line(histImage,
+                    new Point(binWidth * (i - 1), histHeight - (int)blueHist.At<float>(i - 1)),
+                    new Point(binWidth * i, histHeight - blueVal),
+                    Scalar.Blue, 2);
+            }
+
+            // Clean up
+            rgbFrame.Dispose();
+            channels[0].Dispose();
+            channels[1].Dispose();
+            channels[2].Dispose();
+            redHist.Dispose();
+            greenHist.Dispose();
+            blueHist.Dispose();
+
+            return histImage;
         }
-
-        // Clean up
-        rgbFrame.Dispose();
-        channels[0].Dispose();
-        channels[1].Dispose();
-        channels[2].Dispose();
-        redHist.Dispose();
-        greenHist.Dispose();
-        blueHist.Dispose();
-
-        return histImage;
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error calculating histogram: {ex.Message}");
+            // Return black image on error
+            return new Mat(400, 512, MatType.CV_8UC3, Scalar.All(0));
+        }
     }
 
     private BitmapSource MatToBitmapSource(Mat mat)
     {
-        var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-        var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-            bitmap.GetHbitmap(),
-            IntPtr.Zero,
-            System.Windows.Int32Rect.Empty,
-            BitmapSizeOptions.FromEmptyOptions());
-        bitmap.Dispose();
-        return bitmapSource;
+        try
+        {
+            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+            var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                bitmap.GetHbitmap(),
+                IntPtr.Zero,
+                System.Windows.Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+            bitmap.Dispose();
+            return bitmapSource;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error converting Mat to BitmapSource: {ex.Message}");
+            // Return empty bitmap source on error
+            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                new System.Drawing.Bitmap(1, 1).GetHbitmap(),
+                IntPtr.Zero,
+                System.Windows.Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+        }
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
