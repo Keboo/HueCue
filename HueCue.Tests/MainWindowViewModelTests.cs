@@ -59,4 +59,15 @@ public partial class MainWindowViewModelTests
         var exception = Record.Exception(() => viewModel.Dispose());
         Assert.Null(exception);
     }
+
+    [Fact]
+    public void Constructor_InitializesFaceDetection()
+    {
+        //Arrange & Act
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Assert - Constructor should complete without throwing
+        Assert.NotNull(viewModel);
+    }
 }

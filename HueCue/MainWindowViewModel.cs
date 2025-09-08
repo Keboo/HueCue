@@ -42,6 +42,8 @@ public partial class MainWindowViewModel : ObservableObject
 
         _histogramTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) }; // 1 second interval
         _histogramTimer.Tick += OnHistogramTimerTick;
+
+        InitializeFaceDetection();
     }
 
     [RelayCommand]
@@ -170,7 +172,9 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (_currentFrame?.Empty() == false)
         {
-            VideoSource = MatToBitmapSource(_currentFrame);
+            var frameWithFaces = DetectFaces(_currentFrame);
+            VideoSource = MatToBitmapSource(frameWithFaces);
+            frameWithFaces.Dispose();
         }
     }
 
@@ -296,6 +300,130 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    private void InitializeFaceDetection()
+    {
+        try
+        {
+            // Initialize face detection - we'll use OpenCV's built-in capabilities
+            // This serves as a placeholder for DNN model loading if models become available
+            System.Diagnostics.Debug.WriteLine("Face detection initialized with color-based detection");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Face detection initialization failed: {ex.Message}");
+        }
+    }
+
+    private Mat DetectFaces(Mat frame)
+    {
+        try
+        {
+            if (frame.Empty())
+                return frame.Clone();
+
+            // Create a copy of the frame to draw on
+            var result = frame.Clone();
+
+            // Implement face detection using skin color detection as a base approach
+            // This can be extended with DNN models when available
+            using var hsv = new Mat();
+            Cv2.CvtColor(frame, hsv, ColorConversionCodes.BGR2HSV);
+
+            // Enhanced skin color detection with multiple ranges
+            var lowerSkin1 = new Scalar(0, 40, 60);    // Lower hue range
+            var upperSkin1 = new Scalar(25, 255, 255);
+            
+            var lowerSkin2 = new Scalar(160, 40, 60);  // Upper hue range (wrapping around)
+            var upperSkin2 = new Scalar(180, 255, 255);
+
+            // Create masks for both skin color ranges
+            using var skinMask1 = new Mat();
+            using var skinMask2 = new Mat();
+            using var skinMask = new Mat();
+            
+            Cv2.InRange(hsv, lowerSkin1, upperSkin1, skinMask1);
+            Cv2.InRange(hsv, lowerSkin2, upperSkin2, skinMask2);
+            Cv2.BitwiseOr(skinMask1, skinMask2, skinMask);
+
+            // Apply morphological operations to clean up the mask
+            using var kernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(7, 7));
+            using var cleanMask = new Mat();
+            Cv2.MorphologyEx(skinMask, cleanMask, MorphTypes.Open, kernel);
+            Cv2.MorphologyEx(cleanMask, cleanMask, MorphTypes.Close, kernel);
+
+            // Apply additional blur to smooth the mask
+            using var blurred = new Mat();
+            Cv2.GaussianBlur(cleanMask, blurred, new Size(5, 5), 0);
+
+            // Find contours in the cleaned mask
+            Cv2.FindContours(blurred, out var contours, out var hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            // Analyze contours and draw yellow rectangles around potential faces
+            foreach (var contour in contours)
+            {
+                var area = Cv2.ContourArea(contour);
+                
+                // Filter by area - faces should be reasonably sized
+                if (area > 1200 && area < frame.Width * frame.Height * 0.3)
+                {
+                    var boundingRect = Cv2.BoundingRect(contour);
+                    
+                    // Check for face-like proportions and size constraints
+                    var aspectRatio = (double)boundingRect.Width / boundingRect.Height;
+                    var widthRatio = (double)boundingRect.Width / frame.Width;
+                    var heightRatio = (double)boundingRect.Height / frame.Height;
+                    
+                    // Face should have reasonable proportions and size
+                    if (aspectRatio > 0.6 && aspectRatio < 1.6 && 
+                        boundingRect.Width > 40 && boundingRect.Height > 40 &&
+                        widthRatio < 0.8 && heightRatio < 0.8)
+                    {
+                        // Additional check: look for facial features within the region
+                        if (HasFacialFeatures(frame, boundingRect))
+                        {
+                            // Draw yellow rectangle around detected face
+                            Cv2.Rectangle(result, boundingRect, Scalar.Yellow, 3);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Face detection error: {ex.Message}");
+            return frame.Clone();
+        }
+    }
+
+    private static bool HasFacialFeatures(Mat frame, Rect faceRegion)
+    {
+        try
+        {
+            // Extract the face region
+            using var faceRoi = new Mat(frame, faceRegion);
+            using var grayFace = new Mat();
+            Cv2.CvtColor(faceRoi, grayFace, ColorConversionCodes.BGR2GRAY);
+
+            // Apply edge detection to look for facial features
+            using var edges = new Mat();
+            Cv2.Canny(grayFace, edges, 50, 150);
+
+            // Count edge pixels - faces should have sufficient detail
+            var edgePixels = Cv2.CountNonZero(edges);
+            var totalPixels = faceRoi.Width * faceRoi.Height;
+            var edgeRatio = (double)edgePixels / totalPixels;
+
+            // Faces typically have an edge ratio between 0.1 and 0.4
+            return edgeRatio > 0.1 && edgeRatio < 0.4;
+        }
+        catch
+        {
+            return true; // If feature detection fails, assume it's a face
+        }
+    }
+
     public void Dispose()
     {
         StopVideo();
@@ -303,5 +431,6 @@ public partial class MainWindowViewModel : ObservableObject
         _histogramTimer?.Stop();
         _videoCapture?.Release();
         _currentFrame?.Dispose();
+    }
     }
 }

@@ -5,6 +5,7 @@ A WPF application for viewing video files with real-time histogram overlays.
 
 - **Video Playback**: Supports multiple video formats (MP4, AVI, MOV, MKV, WMV, FLV, WebM)
 - **Real-time Histogram**: RGB histogram visualization overlaid on video
+- **Face Detection**: Automatic detection of faces with yellow rectangle highlights
 - **Performance Optimized**: Histogram updates every 1 second for optimal performance
 - **User-friendly Interface**: Simple menu-driven interface
 
@@ -13,6 +14,7 @@ A WPF application for viewing video files with real-time histogram overlays.
 1. **Open Video**: Use `File > Open Video...` to select a video file
 2. **Playback Control**: Use `Playback > Play/Pause` to control video playback
 3. **Histogram View**: The RGB histogram appears in the top-right corner of the video
+4. **Face Detection**: Detected faces are automatically highlighted with yellow rectangles
 
 ## Technical Details
 
