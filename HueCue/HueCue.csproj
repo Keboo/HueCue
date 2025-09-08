@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -42,6 +42,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="OpenCvSharp4.Windows" />
-    <PackageReference Include="OpenCvSharp4.Extensions" />
+    <PackageReference Include="OpenCvSharp4.WpfExtensions" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 </Project>

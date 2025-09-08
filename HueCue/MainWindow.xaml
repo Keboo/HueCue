@@ -25,9 +25,11 @@
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
       <MenuItem Header="_Playback">
-        <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
+        <!--<MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
                   Command="{Binding PlayPauseCommand}" 
-                  IsEnabled="{Binding HasVideo}"/>
+                  IsEnabled="{Binding HasVideo}"/>-->
+        <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="60" IsEnabled="{Binding HasVideo}"/>
+        <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="10" IsEnabled="{Binding HasVideo}"/>
       </MenuItem>
     </Menu>
     
@@ -44,10 +46,9 @@
       <!-- Histogram overlay -->
       <Image x:Name="HistogramImage"
              Source="{Binding HistogramSource}"
-             Width="300"
-             Height="200"
-             HorizontalAlignment="Right"
-             VerticalAlignment="Top"
+             Stretch="Fill"
+             Width="{Binding ActualWidth, ElementName=VideoImage}"
+             Height="{Binding ActualHeight, ElementName=VideoImage}"
              Margin="10"
              Opacity="0.8"/>
       

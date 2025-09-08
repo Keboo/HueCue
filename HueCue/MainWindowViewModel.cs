@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
+
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
@@ -42,7 +44,7 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task OpenVideoFile()
+    private void OpenVideoFile()
     {
         var openFileDialog = new OpenFileDialog
         {
@@ -52,11 +54,11 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (openFileDialog.ShowDialog() == true)
         {
-            await LoadVideoFile(openFileDialog.FileName);
+            LoadVideoFile(openFileDialog.FileName);
         }
     }
 
-    private async Task LoadVideoFile(string filePath)
+    private void LoadVideoFile(string filePath)
     {
         try
         {
@@ -99,6 +101,27 @@ public partial class MainWindowViewModel : ObservableObject
         else
         {
             StartVideo();
+        }
+    }
+
+    [RelayCommand]
+    private void Skip(string seconds)
+    {
+        if (_videoCapture?.IsOpened() == true &&
+            int.TryParse(seconds, out int intSeconds))
+        {
+            var fps = _videoCapture.Fps;
+            var currentFramePos = _videoCapture.Get(VideoCaptureProperties.PosFrames);
+            var newFramePos = currentFramePos + (intSeconds * fps);
+            newFramePos = Math.Max(0, Math.Min(newFramePos, _videoCapture.FrameCount - 1));
+            _videoCapture.Set(VideoCaptureProperties.PosFrames, newFramePos);
+            // Read the new frame
+            _currentFrame = new Mat();
+            if (_videoCapture.Read(_currentFrame) && !_currentFrame.Empty())
+            {
+                UpdateVideoFrame();
+                UpdateHistogram();
+            }
         }
     }
 
@@ -159,7 +182,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private Mat CalculateHistogram(Mat frame)
+    private static Mat CalculateHistogram(Mat frame)
     {
         try
         {
@@ -185,9 +208,9 @@ public partial class MainWindowViewModel : ObservableObject
             var greenHist = new Mat();
             var blueHist = new Mat();
 
-            Cv2.CalcHist(new[] { channels[0] }, new[] { 0 }, null, redHist, 1, new[] { histSize }, ranges);
-            Cv2.CalcHist(new[] { channels[1] }, new[] { 0 }, null, greenHist, 1, new[] { histSize }, ranges);
-            Cv2.CalcHist(new[] { channels[2] }, new[] { 0 }, null, blueHist, 1, new[] { histSize }, ranges);
+            Cv2.CalcHist([channels[0]], [0], null, redHist, 1, [histSize], ranges);
+            Cv2.CalcHist([channels[1]], [0], null, greenHist, 1, [histSize], ranges);
+            Cv2.CalcHist([channels[2]], [0], null, blueHist, 1, [histSize], ranges);
 
             // Normalize histograms
             Cv2.Normalize(redHist, redHist, 0, histImage.Rows, NormTypes.MinMax, -1);
@@ -236,30 +259,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private BitmapSource MatToBitmapSource(Mat mat)
-    {
-        try
-        {
-            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-            var bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                bitmap.GetHbitmap(),
-                IntPtr.Zero,
-                System.Windows.Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions());
-            bitmap.Dispose();
-            return bitmapSource;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error converting Mat to BitmapSource: {ex.Message}");
-            // Return empty bitmap source on error
-            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                new System.Drawing.Bitmap(1, 1).GetHbitmap(),
-                IntPtr.Zero,
-                System.Windows.Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions());
-        }
-    }
+    private static BitmapSource MatToBitmapSource(Mat mat) => mat.ToBitmapSource();
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
