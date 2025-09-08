@@ -1,26 +1,29 @@
 # HueCue - Video Histogram Viewer
-A WPF application for viewing video files with real-time histogram overlays.
+A WPF application for viewing video files with real-time histogram overlays and face detection.
 
 ## Features
 
 - **Video Playback**: Supports multiple video formats (MP4, AVI, MOV, MKV, WMV, FLV, WebM)
 - **Real-time Histogram**: RGB histogram visualization overlaid on video
+- **Face Detection**: Automatic face detection with yellow rectangle overlays using Haar cascades
 - **Performance Optimized**: Histogram updates every 1 second for optimal performance
 - **User-friendly Interface**: Simple menu-driven interface
 
 ## Usage
 
 1. **Open Video**: Use `File > Open Video...` to select a video file
-2. **Playback Control**: Use `Playback > Play/Pause` to control video playback
+2. **Playback Control**: Use `Playbook > Play/Pause` to control video playback
 3. **Histogram View**: The RGB histogram appears in the top-right corner of the video
+4. **Face Detection**: Yellow rectangles automatically appear around detected faces in the video
 
 ## Technical Details
 
 Built with:
 - .NET 8.0 WPF
-- OpenCvSharp4 for video processing
+- OpenCvSharp4 for video processing and face detection
 - CommunityToolkit.Mvvm for MVVM pattern
 - Material Design themes
+- Haar cascade classifiers for face detection
 
 ---
 
