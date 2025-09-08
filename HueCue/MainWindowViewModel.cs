@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ObservableObject
     private DispatcherTimer? _playbackTimer;
     private DispatcherTimer? _histogramTimer;
     private Mat? _currentFrame;
+    private static CascadeClassifier? _faceCascade;
 
     [ObservableProperty]
     private ImageSource? _videoSource;
@@ -41,6 +42,9 @@ public partial class MainWindowViewModel : ObservableObject
 
         _histogramTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) }; // 1 second interval
         _histogramTimer.Tick += OnHistogramTimerTick;
+
+        // Initialize face cascade classifier
+        InitializeFaceCascade();
     }
 
     [RelayCommand]
@@ -169,7 +173,9 @@ public partial class MainWindowViewModel : ObservableObject
     {
         if (_currentFrame?.Empty() == false)
         {
-            VideoSource = MatToBitmapSource(_currentFrame);
+            var frameWithFaces = DetectAndDrawFaces(_currentFrame);
+            VideoSource = MatToBitmapSource(frameWithFaces);
+            frameWithFaces.Dispose();
         }
     }
 
@@ -180,6 +186,67 @@ public partial class MainWindowViewModel : ObservableObject
             var histogram = CalculateHistogram(_currentFrame);
             HistogramSource = MatToBitmapSource(histogram);
         }
+    }
+
+    private static void InitializeFaceCascade()
+    {
+        try
+        {
+            // Use the default Haar cascade for frontal face detection
+            // This should be available with OpenCvSharp4.Windows package
+            _faceCascade = new CascadeClassifier();
+            if (!_faceCascade.Load(CascadeClassifier.HaarCascadeFrontalFaceAlt))
+            {
+                System.Diagnostics.Debug.WriteLine("Warning: Could not load face cascade classifier");
+                _faceCascade?.Dispose();
+                _faceCascade = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error initializing face cascade: {ex.Message}");
+            _faceCascade?.Dispose();
+            _faceCascade = null;
+        }
+    }
+
+    private static Mat DetectAndDrawFaces(Mat frame)
+    {
+        // Create a copy of the frame to draw on
+        var frameWithFaces = frame.Clone();
+        
+        if (_faceCascade == null)
+            return frameWithFaces;
+
+        try
+        {
+            // Convert to grayscale for face detection
+            var grayFrame = new Mat();
+            Cv2.CvtColor(frame, grayFrame, ColorConversionCodes.BGR2GRAY);
+
+            // Detect faces
+            var faces = _faceCascade.DetectMultiScale(
+                grayFrame,
+                scaleFactor: 1.1,
+                minNeighbors: 3,
+                flags: HaarDetectionTypes.ScaleImage,
+                minSize: new Size(30, 30)
+            );
+
+            // Draw yellow rectangles around detected faces
+            foreach (var face in faces)
+            {
+                Cv2.Rectangle(frameWithFaces, face, Scalar.Yellow, 2);
+            }
+
+            grayFrame.Dispose();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error detecting faces: {ex.Message}");
+        }
+
+        return frameWithFaces;
     }
 
     private static Mat CalculateHistogram(Mat frame)
@@ -278,5 +345,6 @@ public partial class MainWindowViewModel : ObservableObject
         _histogramTimer?.Stop();
         _videoCapture?.Release();
         _currentFrame?.Dispose();
+        _faceCascade?.Dispose();
     }
 }
