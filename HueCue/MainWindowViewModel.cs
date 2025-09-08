@@ -9,6 +9,7 @@ using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Velopack;
 
 namespace HueCue;
 
@@ -268,6 +269,30 @@ public partial class MainWindowViewModel : ObservableObject
         if (e.PropertyName == nameof(HasVideo))
         {
             PlayPauseCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdates()
+    {
+        try
+        {
+            var updateManager = new UpdateManager();
+            if (updateManager.IsInstalled)
+            {
+                var updateInfo = await updateManager.CheckForUpdatesAsync();
+                if (updateInfo != null)
+                {
+                    // Update available - you could show a dialog here
+                    await updateManager.DownloadUpdatesAsync(updateInfo);
+                    updateManager.ApplyUpdatesAndRestart(updateInfo);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle update check errors
+            System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
         }
     }
 

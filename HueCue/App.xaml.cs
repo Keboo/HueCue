@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
 using System.Windows.Threading;
+using Velopack;
 
 namespace HueCue;
 
@@ -16,6 +17,9 @@ public partial class App : Application
     [STAThread]
     private static void Main(string[] args)
     {
+        // Handle Velopack updates
+        VelopackApp.Build().Run();
+        
         MainAsync(args).GetAwaiter().GetResult();
     }
 
