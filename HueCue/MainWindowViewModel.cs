@@ -1,17 +1,19 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
-using Emgu.CV;
-using Emgu.CV.Structure;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Util;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+
+using Microsoft.Win32;
+
 using Velopack;
 
 namespace HueCue;
@@ -286,48 +288,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private static BitmapSource MatToBitmapSource(Mat mat)
     {
-        try
-        {
-            // Convert Mat to System.Drawing.Bitmap
-            var bitmap = mat.ToBitmap();
-            
-            // Determine the correct WPF pixel format based on the bitmap's pixel format
-            PixelFormat pixelFormat = bitmap.PixelFormat switch
-            {
-                System.Drawing.Imaging.PixelFormat.Format24bppRgb => PixelFormats.Rgb24,
-                System.Drawing.Imaging.PixelFormat.Format32bppRgb => PixelFormats.Rgb24,
-                System.Drawing.Imaging.PixelFormat.Format32bppArgb => PixelFormats.Bgra32,
-                _ => PixelFormats.Bgr24
-            };
-            
-            // Convert System.Drawing.Bitmap to BitmapSource
-            var bitmapData = bitmap.LockBits(
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                bitmap.PixelFormat);
-
-            var bitmapSource = BitmapSource.Create(
-                bitmapData.Width, bitmapData.Height,
-                96, 96,
-                pixelFormat,
-                null,
-                bitmapData.Scan0,
-                bitmapData.Stride * bitmapData.Height,
-                bitmapData.Stride);
-
-            bitmap.UnlockBits(bitmapData);
-            bitmap.Dispose();
-
-            // Freeze the BitmapSource for performance
-            bitmapSource.Freeze();
-            return bitmapSource;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error converting Mat to BitmapSource: {ex.Message}");
-            // Return a default black image
-            return BitmapSource.Create(1, 1, 96, 96, PixelFormats.Bgr24, null, new byte[3], 3);
-        }
+        return mat.ToBitmapSource();
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
