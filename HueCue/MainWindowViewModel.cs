@@ -1,14 +1,19 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
-using OpenCvSharp;
-using OpenCvSharp.WpfExtensions;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+
+using Microsoft.Win32;
+
 using Velopack;
 
 namespace HueCue;
@@ -77,10 +82,10 @@ public partial class MainWindowViewModel : ObservableObject
             if (!File.Exists(filePath))
                 return;
 
-            _videoCapture?.Release();
+            _videoCapture?.Dispose();
             _videoCapture = new VideoCapture(filePath);
 
-            if (!_videoCapture.IsOpened())
+            if (!_videoCapture.IsOpened)
                 return;
 
             CurrentVideoFile = Path.GetFileName(filePath);
@@ -88,7 +93,7 @@ public partial class MainWindowViewModel : ObservableObject
 
             // Load first frame
             _currentFrame = new Mat();
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.Empty())
+            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
             {
                 UpdateVideoFrame();
                 UpdateHistogram();
@@ -117,17 +122,17 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void Skip(string seconds)
     {
-        if (_videoCapture?.IsOpened() == true &&
+        if (_videoCapture?.IsOpened == true &&
             int.TryParse(seconds, out int intSeconds))
         {
-            var fps = _videoCapture.Fps;
-            var currentFramePos = _videoCapture.Get(VideoCaptureProperties.PosFrames);
+            var fps = _videoCapture.Get(CapProp.Fps);
+            var currentFramePos = _videoCapture.Get(CapProp.PosFrames);
             var newFramePos = currentFramePos + (intSeconds * fps);
-            newFramePos = Math.Max(0, Math.Min(newFramePos, _videoCapture.FrameCount - 1));
-            _videoCapture.Set(VideoCaptureProperties.PosFrames, newFramePos);
+            newFramePos = Math.Max(0, Math.Min(newFramePos, _videoCapture.Get(CapProp.FrameCount) - 1));
+            _videoCapture.Set(CapProp.PosFrames, newFramePos);
             // Read the new frame
             _currentFrame = new Mat();
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.Empty())
+            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
             {
                 UpdateVideoFrame();
                 UpdateHistogram();
@@ -139,7 +144,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void StartVideo()
     {
-        if (_videoCapture?.IsOpened() == true)
+        if (_videoCapture?.IsOpened == true)
         {
             IsPlaying = true;
             _playbackTimer?.Start();
@@ -156,16 +161,16 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnPlaybackTimerTick(object? sender, EventArgs e)
     {
-        if (_videoCapture?.IsOpened() == true && _currentFrame != null)
+        if (_videoCapture?.IsOpened == true && _currentFrame != null)
         {
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.Empty())
+            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
             {
                 UpdateVideoFrame();
             }
             else
             {
                 // End of video, restart from beginning
-                _videoCapture.Set(VideoCaptureProperties.PosFrames, 0);
+                _videoCapture.Set(CapProp.PosFrames, 0);
             }
         }
     }
@@ -177,7 +182,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void UpdateVideoFrame()
     {
-        if (_currentFrame?.Empty() == false)
+        if (_currentFrame?.IsEmpty == false)
         {
             VideoSource = MatToBitmapSource(_currentFrame);
         }
@@ -185,7 +190,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void UpdateHistogram()
     {
-        if (_currentFrame?.Empty() == false)
+        if (_currentFrame?.IsEmpty == false)
         {
             var histogram = CalculateHistogram(_currentFrame);
             HistogramSource = MatToBitmapSource(histogram);
@@ -198,10 +203,11 @@ public partial class MainWindowViewModel : ObservableObject
         {
             // Convert BGR to RGB for proper color representation
             var rgbFrame = new Mat();
-            Cv2.CvtColor(frame, rgbFrame, ColorConversionCodes.BGR2RGB);
+            CvInvoke.CvtColor(frame, rgbFrame, ColorConversion.Bgr2Rgb);
 
             // Split channels
-            var channels = Cv2.Split(rgbFrame);
+            var channels = new VectorOfMat();
+            CvInvoke.Split(rgbFrame, channels);
 
             // Calculate histogram for each channel
             const int histSize = 256;
@@ -209,52 +215,61 @@ public partial class MainWindowViewModel : ObservableObject
             const int histHeight = 400;
             const int binWidth = histWidth / histSize;
 
-            var histImage = new Mat(histHeight, histWidth, MatType.CV_8UC3, Scalar.All(0));
+            var histImage = new Mat(histHeight, histWidth, DepthType.Cv8U, 3);
+            histImage.SetTo(new MCvScalar(0, 0, 0));
 
-            var histRange = new Rangef(0, 256);
-            var ranges = new[] { histRange };
+            var histRange = new float[] { 0, 256 };
+            var ranges = histRange;
 
             var redHist = new Mat();
             var greenHist = new Mat();
             var blueHist = new Mat();
 
-            Cv2.CalcHist([channels[0]], [0], null, redHist, 1, [histSize], ranges);
-            Cv2.CalcHist([channels[1]], [0], null, greenHist, 1, [histSize], ranges);
-            Cv2.CalcHist([channels[2]], [0], null, blueHist, 1, [histSize], ranges);
+            // Calculate histograms
+            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[0] }), new int[] { 0 }, null, redHist, new int[] { histSize }, ranges, false);
+            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[1] }), new int[] { 0 }, null, greenHist, new int[] { histSize }, ranges, false);
+            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[2] }), new int[] { 0 }, null, blueHist, new int[] { histSize }, ranges, false);
 
             // Normalize histograms
-            Cv2.Normalize(redHist, redHist, 0, histImage.Rows, NormTypes.MinMax, -1);
-            Cv2.Normalize(greenHist, greenHist, 0, histImage.Rows, NormTypes.MinMax, -1);
-            Cv2.Normalize(blueHist, blueHist, 0, histImage.Rows, NormTypes.MinMax, -1);
+            CvInvoke.Normalize(redHist, redHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
+            CvInvoke.Normalize(greenHist, greenHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
+            CvInvoke.Normalize(blueHist, blueHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
+
+            // Convert histograms to float arrays for easier access
+            var redHistData = new float[histSize];
+            var greenHistData = new float[histSize];
+            var blueHistData = new float[histSize];
+
+            redHist.CopyTo(redHistData);
+            greenHist.CopyTo(greenHistData);
+            blueHist.CopyTo(blueHistData);
 
             // Draw histogram
             for (int i = 1; i < histSize; i++)
             {
-                var redVal = (int)redHist.At<float>(i);
-                var greenVal = (int)greenHist.At<float>(i);
-                var blueVal = (int)blueHist.At<float>(i);
+                var redVal = (int)redHistData[i];
+                var greenVal = (int)greenHistData[i];
+                var blueVal = (int)blueHistData[i];
 
-                Cv2.Line(histImage,
-                    new Point(binWidth * (i - 1), histHeight - (int)redHist.At<float>(i - 1)),
-                    new Point(binWidth * i, histHeight - redVal),
-                    Scalar.Red, 2);
+                CvInvoke.Line(histImage,
+                    new System.Drawing.Point(binWidth * (i - 1), histHeight - (int)redHistData[i - 1]),
+                    new System.Drawing.Point(binWidth * i, histHeight - redVal),
+                    new MCvScalar(0, 0, 255), 2); // Red channel
 
-                Cv2.Line(histImage,
-                    new Point(binWidth * (i - 1), histHeight - (int)greenHist.At<float>(i - 1)),
-                    new Point(binWidth * i, histHeight - greenVal),
-                    Scalar.Green, 2);
+                CvInvoke.Line(histImage,
+                    new System.Drawing.Point(binWidth * (i - 1), histHeight - (int)greenHistData[i - 1]),
+                    new System.Drawing.Point(binWidth * i, histHeight - greenVal),
+                    new MCvScalar(0, 255, 0), 2); // Green channel
 
-                Cv2.Line(histImage,
-                    new Point(binWidth * (i - 1), histHeight - (int)blueHist.At<float>(i - 1)),
-                    new Point(binWidth * i, histHeight - blueVal),
-                    Scalar.Blue, 2);
+                CvInvoke.Line(histImage,
+                    new System.Drawing.Point(binWidth * (i - 1), histHeight - (int)blueHistData[i - 1]),
+                    new System.Drawing.Point(binWidth * i, histHeight - blueVal),
+                    new MCvScalar(255, 0, 0), 2); // Blue channel
             }
 
             // Clean up
             rgbFrame.Dispose();
-            channels[0].Dispose();
-            channels[1].Dispose();
-            channels[2].Dispose();
+            channels.Dispose();
             redHist.Dispose();
             greenHist.Dispose();
             blueHist.Dispose();
@@ -265,11 +280,16 @@ public partial class MainWindowViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"Error calculating histogram: {ex.Message}");
             // Return black image on error
-            return new Mat(400, 512, MatType.CV_8UC3, Scalar.All(0));
+            var errorMat = new Mat(400, 512, DepthType.Cv8U, 3);
+            errorMat.SetTo(new MCvScalar(0, 0, 0));
+            return errorMat;
         }
     }
 
-    private static BitmapSource MatToBitmapSource(Mat mat) => mat.ToBitmapSource();
+    private static BitmapSource MatToBitmapSource(Mat mat)
+    {
+        return mat.ToBitmapSource();
+    }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
@@ -286,7 +306,7 @@ public partial class MainWindowViewModel : ObservableObject
         StopVideo();
         _playbackTimer?.Stop();
         _histogramTimer?.Stop();
-        _videoCapture?.Release();
+        _videoCapture?.Dispose();
         _currentFrame?.Dispose();
     }
 }

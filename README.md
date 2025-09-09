@@ -18,7 +18,7 @@ A WPF application for viewing video files with real-time histogram overlays.
 
 Built with:
 - .NET 8.0 WPF
-- OpenCvSharp4 for video processing
+- Emgu CV for video processing
 - CommunityToolkit.Mvvm for MVVM pattern
 - Material Design themes
 
