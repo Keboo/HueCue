@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Util;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.ComponentModel;
@@ -212,11 +213,11 @@ public partial class MainWindowViewModel : ObservableObject
             const int histHeight = 400;
             const int binWidth = histWidth / histSize;
 
-            var histImage = new Mat(histHeight, histWidth, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
+            var histImage = new Mat(histHeight, histWidth, DepthType.Cv8U, 3);
             histImage.SetTo(new MCvScalar(0, 0, 0));
 
             var histRange = new float[] { 0, 256 };
-            var ranges = new RangeF[] { new RangeF(0, 256) };
+            var ranges = histRange;
 
             var redHist = new Mat();
             var greenHist = new Mat();
@@ -228,9 +229,9 @@ public partial class MainWindowViewModel : ObservableObject
             CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[2] }), new int[] { 0 }, null, blueHist, new int[] { histSize }, ranges, false);
 
             // Normalize histograms
-            CvInvoke.Normalize(redHist, redHist, 0, histImage.Rows, NormType.MinMax, DepthType.Default);
-            CvInvoke.Normalize(greenHist, greenHist, 0, histImage.Rows, NormType.MinMax, DepthType.Default);
-            CvInvoke.Normalize(blueHist, blueHist, 0, histImage.Rows, NormType.MinMax, DepthType.Default);
+            CvInvoke.Normalize(redHist, redHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
+            CvInvoke.Normalize(greenHist, greenHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
+            CvInvoke.Normalize(blueHist, blueHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
 
             // Convert histograms to float arrays for easier access
             var redHistData = new float[histSize];
@@ -277,7 +278,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"Error calculating histogram: {ex.Message}");
             // Return black image on error
-            var errorMat = new Mat(400, 512, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
+            var errorMat = new Mat(400, 512, DepthType.Cv8U, 3);
             errorMat.SetTo(new MCvScalar(0, 0, 0));
             return errorMat;
         }
@@ -290,6 +291,15 @@ public partial class MainWindowViewModel : ObservableObject
             // Convert Mat to System.Drawing.Bitmap
             var bitmap = mat.ToBitmap();
             
+            // Determine the correct WPF pixel format based on the bitmap's pixel format
+            PixelFormat pixelFormat = bitmap.PixelFormat switch
+            {
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb => PixelFormats.Rgb24,
+                System.Drawing.Imaging.PixelFormat.Format32bppRgb => PixelFormats.Rgb24,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb => PixelFormats.Bgra32,
+                _ => PixelFormats.Bgr24
+            };
+            
             // Convert System.Drawing.Bitmap to BitmapSource
             var bitmapData = bitmap.LockBits(
                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -299,7 +309,7 @@ public partial class MainWindowViewModel : ObservableObject
             var bitmapSource = BitmapSource.Create(
                 bitmapData.Width, bitmapData.Height,
                 96, 96,
-                PixelFormats.Bgr24,
+                pixelFormat,
                 null,
                 bitmapData.Scan0,
                 bitmapData.Stride * bitmapData.Height,
