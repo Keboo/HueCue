@@ -281,30 +281,6 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task CheckForUpdates()
-    {
-        try
-        {
-            UpdateManager updateManager = new(new Velopack.Sources.VelopackFlowSource());
-            if (updateManager.IsInstalled)
-            {
-                var updateInfo = await updateManager.CheckForUpdatesAsync();
-                if (updateInfo != null)
-                {
-                    // Update available - you could show a dialog here
-                    await updateManager.DownloadUpdatesAsync(updateInfo);
-                    updateManager.ApplyUpdatesAndRestart(updateInfo);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // Handle update check errors
-            System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
-        }
-    }
-
     public void Dispose()
     {
         StopVideo();

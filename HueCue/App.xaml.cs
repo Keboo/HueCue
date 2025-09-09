@@ -32,6 +32,31 @@ public partial class App : Application
         app.InitializeComponent();
         app.MainWindow = host.Services.GetRequiredService<MainWindow>();
         app.MainWindow.Visibility = Visibility.Visible;
+
+        // Check for updates automatically on startup
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                UpdateManager updateManager = new(new Velopack.Sources.VelopackFlowSource());
+                if (updateManager.IsInstalled)
+                {
+                    var updateInfo = await updateManager.CheckForUpdatesAsync();
+                    if (updateInfo != null)
+                    {
+                        // Update available - download and apply
+                        await updateManager.DownloadUpdatesAsync(updateInfo);
+                        updateManager.ApplyUpdatesAndRestart(updateInfo);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle update check errors silently
+                System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
+            }
+        });
+
         app.Run();
 
         await host.StopAsync().ConfigureAwait(true);

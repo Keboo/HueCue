@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel, IsDesignTimeCreatable=False}"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="HueCue - Video Histogram Viewer" Height="450" Width="800">
+        Height="450" Width="800">
   <Window.Resources>
     <local:BoolToPlayPauseTextConverter x:Key="PlayPauseTextConverter"/>
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
@@ -49,9 +49,6 @@
                   IsEnabled="{Binding HasVideo}"/>
         <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="300" IsEnabled="{Binding HasVideo}"/>
         <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="30" IsEnabled="{Binding HasVideo}"/>
-      </MenuItem>
-      <MenuItem Header="_Help">
-        <MenuItem Header="_Check for Updates..." Command="{Binding CheckForUpdatesCommand}"/>
       </MenuItem>
     </Menu>
     
