@@ -42,13 +42,18 @@
                   Command="{Binding SetOverlayCommand}"
                   IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Below}, Mode=OneWay}"
                   />
+        <Separator />
+        <MenuItem Header="Enable Face Detection" IsCheckable="True" 
+                  IsChecked="{Binding FaceDetectionEnabled}"
+                  Command="{Binding ToggleFaceDetectionCommand}"
+                  IsEnabled="{Binding FaceDetectionAvailable}"/>
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
                   Command="{Binding PlayPauseCommand}" 
                   IsEnabled="{Binding HasVideo}"/>
         <MenuItem Header="_Skip Forward" Command="{Binding SkipCommand}" CommandParameter="300" IsEnabled="{Binding HasVideo}"/>
-        <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="30" IsEnabled="{Binding HasVideo}"/>
+        <MenuItem Header="_Skip Backward" Command="{Binding SkipCommand}" CommandParameter="-30" IsEnabled="{Binding HasVideo}"/>
       </MenuItem>
     </Menu>
     
@@ -153,5 +158,38 @@
         </TextBlock.Style>
       </TextBlock>
     </Grid>
+
+    <!-- Status bar -->
+    <StatusBar Grid.Row="2">
+      <StatusBarItem>
+        <TextBlock Text="{Binding CurrentVideoFile}" />
+      </StatusBarItem>
+      <Separator />
+      <StatusBarItem>
+        <TextBlock>
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="Text" Value="Face detection unavailable" />
+              <Style.Triggers>
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding FaceDetectionAvailable}" Value="True" />
+                    <Condition Binding="{Binding FaceDetectionEnabled}" Value="False" />
+                  </MultiDataTrigger.Conditions>
+                  <Setter Property="Text" Value="Face detection disabled" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding FaceDetectionAvailable}" Value="True" />
+                    <Condition Binding="{Binding FaceDetectionEnabled}" Value="True" />
+                  </MultiDataTrigger.Conditions>
+                  <Setter Property="Text" Value="{Binding DetectedFaceCount, StringFormat='Faces detected: {0}'}" />
+                </MultiDataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+      </StatusBarItem>
+    </StatusBar>
   </Grid>
 </Window>
