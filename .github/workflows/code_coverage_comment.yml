@@ -2,7 +2,7 @@ name: Code Coverage PR Comment
 
 on:
   workflow_run:
-    workflows: [Build HueCue]
+    workflows: [Continuous Integration]
     types:
       - completed
 
