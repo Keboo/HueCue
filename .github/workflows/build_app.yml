@@ -11,7 +11,10 @@ on:
 defaults:
   run:
     shell: pwsh
-  
+
+permissions:
+  contents: write
+
 jobs:
   build-and-publish:
     runs-on: windows-latest
@@ -61,4 +64,14 @@ jobs:
           VELOPACK_API_KEY: ${{ secrets.VELOPACK_API_KEY }}
         run: |
           dotnet vpk publish --api-key ${{ secrets.VELOPACK_API_KEY }} --outputDir ${{github.workspace}}/Releases --waitForLive
+
+      - name: Create release tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "release/${{ inputs.version }}"
+
+      - name: Push release tag
+        run: |
+          git push origin "release/${{ inputs.version }}"
 
