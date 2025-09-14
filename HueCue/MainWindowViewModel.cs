@@ -53,6 +53,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private HistogramOverlay _overlay = HistogramOverlay.Overlay;
 
+    [ObservableProperty]
+    private GuideOverlay _guideOverlay = GuideOverlay.None;
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
@@ -112,6 +115,30 @@ public partial class MainWindowViewModel : ObservableObject
     private void SetOverlay(HistogramOverlay overlay)
     {
         Overlay = overlay;
+    }
+
+    [RelayCommand]
+    private void SetGuideOverlay(GuideOverlay guideOverlay)
+    {
+        GuideOverlay = guideOverlay;
+        
+        // Update the current frame display
+        if (_currentFrame?.IsEmpty == false && HasVideo)
+        {
+            UpdateVideoFrame();
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleRuleOfThirdsGuide()
+    {
+        GuideOverlay = GuideOverlay == GuideOverlay.RuleOfThirds ? GuideOverlay.None : GuideOverlay.RuleOfThirds;
+        
+        // Update the current frame display
+        if (_currentFrame?.IsEmpty == false && HasVideo)
+        {
+            UpdateVideoFrame();
+        }
     }
 
     [RelayCommand]
@@ -244,6 +271,11 @@ public partial class MainWindowViewModel : ObservableObject
                 displayFrame = DetectAndDrawFaces(displayFrame);
             }
 
+            if (GuideOverlay != GuideOverlay.None)
+            {
+                displayFrame = DrawGuideOverlays(displayFrame);
+            }
+
             VideoSource = MatToBitmapSource(displayFrame);
             displayFrame.Dispose();
         }
@@ -361,6 +393,64 @@ public partial class MainWindowViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"Error drawing facial landmarks: {ex.Message}");
         }
+    }
+
+    private Mat DrawGuideOverlays(Mat frame)
+    {
+        switch (GuideOverlay)
+        {
+            case GuideOverlay.RuleOfThirds:
+                return DrawRuleOfThirdsGuides(frame);
+            default:
+                return frame;
+        }
+    }
+
+    private Mat DrawRuleOfThirdsGuides(Mat frame)
+    {
+        try
+        {
+            int width = frame.Width;
+            int height = frame.Height;
+            
+            // Red color for guide lines (BGR format in OpenCV)
+            var lineColor = new MCvScalar(0, 0, 255); // Red color
+            int lineThickness = 2;
+            
+            // Calculate positions for rule of thirds lines
+            int verticalLine1 = width / 3;
+            int verticalLine2 = 2 * width / 3;
+            int horizontalLine1 = height / 3;
+            int horizontalLine2 = 2 * height / 3;
+            
+            // Draw vertical lines
+            CvInvoke.Line(frame, 
+                new System.Drawing.Point(verticalLine1, 0), 
+                new System.Drawing.Point(verticalLine1, height), 
+                lineColor, lineThickness);
+            
+            CvInvoke.Line(frame, 
+                new System.Drawing.Point(verticalLine2, 0), 
+                new System.Drawing.Point(verticalLine2, height), 
+                lineColor, lineThickness);
+            
+            // Draw horizontal lines
+            CvInvoke.Line(frame, 
+                new System.Drawing.Point(0, horizontalLine1), 
+                new System.Drawing.Point(width, horizontalLine1), 
+                lineColor, lineThickness);
+            
+            CvInvoke.Line(frame, 
+                new System.Drawing.Point(0, horizontalLine2), 
+                new System.Drawing.Point(width, horizontalLine2), 
+                lineColor, lineThickness);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error drawing rule of thirds guides: {ex.Message}");
+        }
+        
+        return frame;
     }
 
     private void UpdateHistogram()
