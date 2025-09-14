@@ -23,6 +23,7 @@
     <Menu>
       <MenuItem Header="_File">
         <MenuItem Header="_Open Video..." Command="{Binding OpenVideoFileCommand}"/>
+        <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}"/>
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
@@ -126,8 +127,7 @@
       </Image>
 
       <!-- Status text when no video is loaded -->
-      <TextBlock Text="No video loaded. Use File > Open Video... to load a video file."
-                 FontSize="16"
+      <TextBlock FontSize="16"
                  Foreground="Gray"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
@@ -137,6 +137,7 @@
         <TextBlock.Style>
           <Style TargetType="TextBlock">
             <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="Text" Value="No video loaded. Use File > Open Video... to load a video file or File > Load from AJA Helo to start live streaming."/>
             <Style.Triggers>
               <DataTrigger Binding="{Binding HasVideo}" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>

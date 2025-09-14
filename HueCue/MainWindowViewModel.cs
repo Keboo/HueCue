@@ -23,8 +23,10 @@ public partial class MainWindowViewModel : ObservableObject
     private VideoCapture? _videoCapture;
     private DispatcherTimer? _playbackTimer;
     private DispatcherTimer? _histogramTimer;
+    private DispatcherTimer? _liveStreamTimer;
     private Mat? _currentFrame;
     private FaceDetectorYN? _faceDetector;
+    private AjaHeloStreamSource? _streamSource;
 
     [ObservableProperty]
     private ImageSource? _videoSource;
@@ -54,6 +56,9 @@ public partial class MainWindowViewModel : ObservableObject
     private HistogramOverlay _overlay = HistogramOverlay.Below;
 
     [ObservableProperty]
+    private bool _isLiveStreaming;
+
+    [ObservableProperty]
     private GuideOverlay _guideOverlay = GuideOverlay.None;
 
     public MainWindowViewModel()
@@ -63,6 +68,9 @@ public partial class MainWindowViewModel : ObservableObject
 
         _histogramTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) }; // 1 second interval
         _histogramTimer.Tick += OnHistogramTimerTick;
+
+        _liveStreamTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) }; // 4 FPS (250ms)
+        _liveStreamTimer.Tick += OnLiveStreamTimerTick;
 
         InitializeFaceDetector();
     }
@@ -112,6 +120,12 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task LoadFromAjaHelo()
+    {
+        await LoadLiveStream();
+    }
+
+    [RelayCommand]
     private void SetOverlay(HistogramOverlay overlay)
     {
         Overlay = overlay;
@@ -158,6 +172,7 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             StopVideo();
+            StopLiveStream();
 
             if (!File.Exists(filePath))
                 return;
@@ -186,10 +201,79 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
+    private async Task LoadLiveStream()
+    {
+        try
+        {
+            StopVideo();
+            StopLiveStream();
+
+            _streamSource?.Dispose();
+            _streamSource = new AjaHeloStreamSource();
+
+            // Try to get initial frame to verify connection
+            var initialFrame = await _streamSource.GetFrameAsync();
+            if (initialFrame != null)
+            {
+                _currentFrame?.Dispose();
+                _currentFrame = initialFrame;
+                
+                CurrentVideoFile = "AJA Helo Live Stream";
+                HasVideo = true;
+                IsLiveStreaming = true;
+
+                UpdateVideoFrame();
+                UpdateHistogram();
+
+                // Start live stream timer
+                _liveStreamTimer?.Start();
+                _histogramTimer?.Start();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to connect to AJA Helo stream");
+                CurrentVideoFile = null;
+                HasVideo = false;
+                IsLiveStreaming = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading live stream: {ex.Message}");
+            CurrentVideoFile = null;
+            HasVideo = false;
+            IsLiveStreaming = false;
+        }
+    }
+
+    private void StopLiveStream()
+    {
+        _liveStreamTimer?.Stop();
+        IsLiveStreaming = false;
+        _streamSource?.Dispose();
+        _streamSource = null;
+    }
+
     [RelayCommand(CanExecute = nameof(CanPlayPause))]
     private void PlayPause()
     {
-        if (IsPlaying)
+        if (IsLiveStreaming)
+        {
+            // For live streams, play/pause controls the display timer
+            if (IsPlaying)
+            {
+                _liveStreamTimer?.Stop();
+                _histogramTimer?.Stop();
+                IsPlaying = false;
+            }
+            else
+            {
+                _liveStreamTimer?.Start();
+                _histogramTimer?.Start();
+                IsPlaying = true;
+            }
+        }
+        else if (IsPlaying)
         {
             StopVideo();
         }
@@ -237,6 +321,7 @@ public partial class MainWindowViewModel : ObservableObject
         IsPlaying = false;
         _playbackTimer?.Stop();
         _histogramTimer?.Stop();
+        _liveStreamTimer?.Stop();
     }
 
     private void OnPlaybackTimerTick(object? sender, EventArgs e)
@@ -258,6 +343,27 @@ public partial class MainWindowViewModel : ObservableObject
     private void OnHistogramTimerTick(object? sender, EventArgs e)
     {
         UpdateHistogram();
+    }
+
+    private async void OnLiveStreamTimerTick(object? sender, EventArgs e)
+    {
+        if (_streamSource != null && IsLiveStreaming)
+        {
+            try
+            {
+                var newFrame = await _streamSource.GetFrameAsync();
+                if (newFrame != null)
+                {
+                    _currentFrame?.Dispose();
+                    _currentFrame = newFrame;
+                    UpdateVideoFrame();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting live stream frame: {ex.Message}");
+            }
+        }
     }
 
     private void UpdateVideoFrame()
@@ -569,10 +675,13 @@ public partial class MainWindowViewModel : ObservableObject
     public void Dispose()
     {
         StopVideo();
+        StopLiveStream();
         _playbackTimer?.Stop();
         _histogramTimer?.Stop();
+        _liveStreamTimer?.Stop();
         _videoCapture?.Dispose();
         _currentFrame?.Dispose();
         _faceDetector?.Dispose();
+        _streamSource?.Dispose();
     }
 }

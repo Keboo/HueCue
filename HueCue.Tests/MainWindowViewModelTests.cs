@@ -18,6 +18,7 @@ public partial class MainWindowViewModelTests
         Assert.Null(viewModel.CurrentVideoFile);
         Assert.False(viewModel.IsPlaying);
         Assert.False(viewModel.HasVideo);
+        Assert.False(viewModel.IsLiveStreaming);
         Assert.Equal(HistogramOverlay.Below, viewModel.Overlay);
     }
 
@@ -44,6 +45,20 @@ public partial class MainWindowViewModelTests
 
         //Act
         bool canExecute = viewModel.OpenVideoFileCommand.CanExecute(null);
+
+        //Assert
+        Assert.True(canExecute);
+    }
+
+    [Fact]
+    public void LoadFromAjaHeloCommand_CanAlwaysExecute()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act
+        bool canExecute = viewModel.LoadFromAjaHeloCommand.CanExecute(null);
 
         //Assert
         Assert.True(canExecute);
