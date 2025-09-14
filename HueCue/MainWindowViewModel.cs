@@ -51,7 +51,7 @@ public partial class MainWindowViewModel : ObservableObject
     private int _detectedFaceCount;
 
     [ObservableProperty]
-    private HistogramOverlay _overlay = HistogramOverlay.Overlay;
+    private HistogramOverlay _overlay = HistogramOverlay.Below;
 
     [ObservableProperty]
     private GuideOverlay _guideOverlay = GuideOverlay.None;

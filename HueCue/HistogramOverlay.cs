@@ -3,7 +3,6 @@
 public enum HistogramOverlay
 {
     None,
-    Overlay,
     Right,
     Below
 }

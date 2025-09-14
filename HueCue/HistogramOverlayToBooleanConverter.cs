@@ -17,7 +17,7 @@ public class HistogramOverlayToBooleanConverter : IValueConverter
     {
         if (value is bool isChecked && parameter is HistogramOverlay param)
         {
-            return isChecked ? param : HistogramOverlay.None;
+            return isChecked ? param : HistogramOverlay.Below;
         }
         return Binding.DoNothing;
     }
