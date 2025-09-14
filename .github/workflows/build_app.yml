@@ -54,7 +54,7 @@ jobs:
 
       - name: Package with Velopack
         run: |
-          dotnet vpk pack --packId keboo.huecue --packVersion ${{ inputs.version }} --packDir ${{github.workspace}}/.build/publish --mainExe HueCue.exe
+          dotnet vpk pack --packTitle "HueCue" --packId keboo.huecue --packVersion ${{ inputs.version }} --packDir ${{github.workspace}}/.build/publish --mainExe HueCue.exe
 
       - name: Upload to Velopack Flow
         env:
