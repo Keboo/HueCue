@@ -18,7 +18,7 @@ public partial class MainWindowViewModelTests
         Assert.Null(viewModel.CurrentVideoFile);
         Assert.False(viewModel.IsPlaying);
         Assert.False(viewModel.HasVideo);
-        Assert.Equal(GuideOverlay.None, viewModel.GuideOverlay);
+        Assert.Equal(HistogramOverlay.Below, viewModel.Overlay);
     }
 
     [Fact]
