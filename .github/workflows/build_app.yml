@@ -62,3 +62,13 @@ jobs:
         run: |
           dotnet vpk publish --api-key ${{ secrets.VELOPACK_API_KEY }} --outputDir ${{github.workspace}}/Releases --waitForLive
 
+      - name: Create release tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "release/${{ inputs.version }}"
+
+      - name: Push release tag
+        run: |
+          git push origin "release/${{ inputs.version }}"
+
