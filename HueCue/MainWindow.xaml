@@ -11,6 +11,7 @@
   <Window.Resources>
     <local:BoolToPlayPauseTextConverter x:Key="PlayPauseTextConverter"/>
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
+    <local:GuideOverlayToBooleanConverter x:Key="GuideOverlayToBooleanConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -47,6 +48,10 @@
                   IsChecked="{Binding FaceDetectionEnabled}"
                   Command="{Binding ToggleFaceDetectionCommand}"
                   IsEnabled="{Binding FaceDetectionAvailable}"/>
+        <Separator />
+        <MenuItem Header="Rule of Thirds Guide" IsCheckable="True" 
+                  IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.RuleOfThirds}, Mode=OneWay}"
+                  Command="{Binding ToggleRuleOfThirdsGuideCommand}"/>
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
