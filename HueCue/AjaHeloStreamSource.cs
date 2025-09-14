@@ -1,5 +1,7 @@
 using System.Net.Http;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Util;
 
 namespace HueCue;
 
@@ -40,7 +42,16 @@ public class AjaHeloStreamSource : IDisposable
             using var vector = new VectorOfByte(imageData);
             var mat = CvInvoke.Imdecode(vector, ImreadModes.Color);
             
-            return mat?.IsEmpty == false ? mat : null;
+            // Clone the mat to ensure it's independent of the vector, then dispose original
+            if (mat?.IsEmpty == false)
+            {
+                var clonedMat = mat.Clone();
+                mat.Dispose();
+                return clonedMat;
+            }
+            
+            mat?.Dispose();
+            return null;
         }
         catch (Exception ex)
         {
