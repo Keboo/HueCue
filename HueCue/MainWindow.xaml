@@ -23,7 +23,7 @@
 
     <Menu>
       <MenuItem Header="_File">
-        <MenuItem Header="_Open Video..." Command="{Binding OpenVideoFileCommand}"/>
+        <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}"/>
         <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}"/>
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
@@ -142,7 +142,7 @@
         <TextBlock.Style>
           <Style TargetType="TextBlock">
             <Setter Property="Visibility" Value="Collapsed"/>
-            <Setter Property="Text" Value="No video loaded. Use File > Open Video... to load a video file or File > Load from AJA Helo to start live streaming."/>
+            <Setter Property="Text" Value="No file loaded. Use File > Open Video/Image... to load a video or image file or File > Load from AJA Helo to start live streaming."/>
             <Style.Triggers>
               <DataTrigger Binding="{Binding HasVideo}" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>
