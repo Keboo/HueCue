@@ -23,7 +23,7 @@
 
     <Menu>
       <MenuItem Header="_File">
-        <MenuItem Header="_Open Video..." Command="{Binding OpenVideoFileCommand}"/>
+        <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}"/>
         <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}"/>
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
@@ -64,7 +64,7 @@
     </Menu>
     
     
-    <!-- Main content area with video and histogram -->
+    <!-- Main content area with media and histogram -->
     <Grid Grid.Row="1">
       <Grid.RowDefinitions>
         <RowDefinition />
@@ -100,7 +100,7 @@
           </ColumnDefinition.Style>
         </ColumnDefinition>
       </Grid.ColumnDefinitions>
-      <!-- Video player -->
+      <!-- Media display -->
       <Image x:Name="VideoImage" 
              Source="{Binding VideoSource}"
              Stretch="Uniform"
@@ -131,7 +131,7 @@
         </Image.Style>
       </Image>
 
-      <!-- Status text when no video is loaded -->
+      <!-- Status text when no file is loaded -->
       <TextBlock FontSize="16"
                  Foreground="Gray"
                  HorizontalAlignment="Center"
@@ -142,7 +142,7 @@
         <TextBlock.Style>
           <Style TargetType="TextBlock">
             <Setter Property="Visibility" Value="Collapsed"/>
-            <Setter Property="Text" Value="No video loaded. Use File > Open Video... to load a video file or File > Load from AJA Helo to start live streaming."/>
+            <Setter Property="Text" Value="No file loaded. Use File > Open Video/Image... to load a video or image file or File > Load from AJA Helo to start live streaming."/>
             <Style.Triggers>
               <DataTrigger Binding="{Binding HasVideo}" Value="False">
                 <Setter Property="Visibility" Value="Visible"/>

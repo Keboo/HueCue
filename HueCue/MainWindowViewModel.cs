@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -112,13 +112,13 @@ public partial class MainWindowViewModel : ObservableObject
     {
         var openFileDialog = new OpenFileDialog
         {
-            Title = "Select Video File",
-            Filter = "Video Files|*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm|All Files|*.*"
+            Title = "Select Video or Image File",
+            Filter = "Video and Image Files|*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm;*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.tif;*.gif|Video Files|*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm|Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.tif;*.gif|All Files|*.*"
         };
 
         if (openFileDialog.ShowDialog() == true)
         {
-            LoadVideoFile(openFileDialog.FileName);
+            LoadFile(openFileDialog.FileName);
         }
     }
 
@@ -174,6 +174,63 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleTopMost()
     {
         TopMost = !TopMost;
+    }
+
+    private void LoadFile(string filePath)
+    {
+        if (IsImageFile(filePath))
+        {
+            LoadImageFile(filePath);
+        }
+        else
+        {
+            LoadVideoFile(filePath);
+        }
+    }
+
+    private static bool IsImageFile(string filePath)
+    {
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+        return extension is ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif";
+    }
+
+    private void LoadImageFile(string filePath)
+    {
+        try
+        {
+            StopVideo();
+            StopLiveStream();
+
+            if (!File.Exists(filePath))
+                return;
+
+            // Dispose previous video capture if any
+            _videoCapture?.Dispose();
+            _videoCapture = null;
+
+            // Load image directly using OpenCV
+            var imageMat = CvInvoke.Imread(filePath, ImreadModes.AnyColor);
+            if (imageMat?.IsEmpty == false)
+            {
+                _currentFrame?.Dispose();
+                _currentFrame = imageMat;
+
+                CurrentVideoFile = Path.GetFileName(filePath);
+                HasVideo = true;
+
+                UpdateVideoFrame();
+                UpdateHistogram();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load image: {filePath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error or show message to user
+            System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
+        }
     }
 
     private void LoadVideoFile(string filePath)
@@ -313,7 +370,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private bool CanPlayPause() => HasVideo;
+    private bool CanPlayPause() => HasVideo && (IsLiveStreaming || _videoCapture?.IsOpened == true);
 
     private void StartVideo()
     {

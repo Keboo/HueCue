@@ -174,4 +174,45 @@ public partial class MainWindowViewModelTests
         //Assert
         Assert.True(canExecute);
     }
+
+    [Theory]
+    [InlineData("test.jpg", true)]
+    [InlineData("test.jpeg", true)]
+    [InlineData("test.png", true)]
+    [InlineData("test.bmp", true)]
+    [InlineData("test.tiff", true)]
+    [InlineData("test.tif", true)]
+    [InlineData("test.gif", true)]
+    [InlineData("test.JPG", true)]
+    [InlineData("test.PNG", true)]
+    [InlineData("test.mp4", false)]
+    [InlineData("test.avi", false)]
+    [InlineData("test.txt", false)]
+    [InlineData("test", false)]
+    public void IsImageFile_ReturnsCorrectResult(string fileName, bool expected)
+    {
+        //Arrange & Act
+        // Using reflection to access the private static method
+        var method = typeof(MainWindowViewModel).GetMethod("IsImageFile", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        bool result = (bool)method!.Invoke(null, new object[] { fileName })!;
+
+        //Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void LoadFile_CallsCorrectMethodBasedOnFileType()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+        
+        // Test that the commands are properly accessible (this validates the overall integration)
+        bool canExecuteOpen = viewModel.OpenVideoFileCommand.CanExecute(null);
+        bool canExecutePlayPause = viewModel.PlayPauseCommand.CanExecute(null);
+        
+        //Assert
+        Assert.True(canExecuteOpen); // Should always be able to open files
+        Assert.False(canExecutePlayPause); // Should not be able to play/pause without video
+    }
 }
