@@ -370,7 +370,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private bool CanPlayPause() => HasVideo;
+    private bool CanPlayPause() => HasVideo && (IsLiveStreaming || _videoCapture?.IsOpened == true);
 
     private void StartVideo()
     {

@@ -22,7 +22,7 @@ public partial class MainWindow
 
     private void SetWindowTitle()
     {
-        string baseTitle = "HueCue - Video Histogram Viewer";
+        string baseTitle = "HueCue - Video & Image Histogram Viewer";
         
         try
         {

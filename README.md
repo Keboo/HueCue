@@ -1,5 +1,5 @@
-# HueCue - Video Histogram Viewer
-A WPF application for viewing video files with real-time histogram overlays.
+# HueCue - Video & Image Histogram Viewer
+A WPF application for viewing video and image files with real-time histogram overlays.
 
 ## Features
 

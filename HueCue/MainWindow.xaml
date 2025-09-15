@@ -64,7 +64,7 @@
     </Menu>
     
     
-    <!-- Main content area with video and histogram -->
+    <!-- Main content area with media and histogram -->
     <Grid Grid.Row="1">
       <Grid.RowDefinitions>
         <RowDefinition />
@@ -100,7 +100,7 @@
           </ColumnDefinition.Style>
         </ColumnDefinition>
       </Grid.ColumnDefinitions>
-      <!-- Video player -->
+      <!-- Media display -->
       <Image x:Name="VideoImage" 
              Source="{Binding VideoSource}"
              Stretch="Uniform"
@@ -131,7 +131,7 @@
         </Image.Style>
       </Image>
 
-      <!-- Status text when no video is loaded -->
+      <!-- Status text when no file is loaded -->
       <TextBlock FontSize="16"
                  Foreground="Gray"
                  HorizontalAlignment="Center"
