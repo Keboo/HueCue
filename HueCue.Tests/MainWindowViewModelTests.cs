@@ -20,6 +20,7 @@ public partial class MainWindowViewModelTests
         Assert.False(viewModel.HasVideo);
         Assert.False(viewModel.IsLiveStreaming);
         Assert.Equal(HistogramOverlay.Below, viewModel.Overlay);
+        Assert.False(viewModel.TopMost);
     }
 
     [Fact]
@@ -134,6 +135,41 @@ public partial class MainWindowViewModelTests
 
         //Act
         bool canExecute = viewModel.ToggleRuleOfThirdsGuideCommand.CanExecute(null);
+
+        //Assert
+        Assert.True(canExecute);
+    }
+
+    [Fact]
+    public void ToggleTopMostCommand_TogglesTopMost()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+        Assert.False(viewModel.TopMost);
+
+        //Act - Enable
+        viewModel.ToggleTopMostCommand.Execute(null);
+
+        //Assert
+        Assert.True(viewModel.TopMost);
+
+        //Act - Disable
+        viewModel.ToggleTopMostCommand.Execute(null);
+
+        //Assert
+        Assert.False(viewModel.TopMost);
+    }
+
+    [Fact]
+    public void ToggleTopMostCommand_CanAlwaysExecute()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act
+        bool canExecute = viewModel.ToggleTopMostCommand.CanExecute(null);
 
         //Assert
         Assert.True(canExecute);

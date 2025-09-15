@@ -61,6 +61,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private GuideOverlay _guideOverlay = GuideOverlay.None;
 
+    [ObservableProperty]
+    private bool _topMost;
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
@@ -165,6 +168,12 @@ public partial class MainWindowViewModel : ObservableObject
         {
             UpdateVideoFrame();
         }
+    }
+
+    [RelayCommand]
+    private void ToggleTopMost()
+    {
+        TopMost = !TopMost;
     }
 
     private void LoadVideoFile(string filePath)
