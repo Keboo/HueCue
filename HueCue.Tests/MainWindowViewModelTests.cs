@@ -92,6 +92,36 @@ public partial class MainWindowViewModelTests
     }
 
     [Fact]
+    public void SetGuideOverlayCommand_SetsHeatMapGuideOverlay()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act
+        viewModel.SetGuideOverlayCommand.Execute(GuideOverlay.HeatMap);
+
+        //Assert
+        Assert.Equal(GuideOverlay.HeatMap, viewModel.GuideOverlay);
+    }
+
+    [Fact]
+    public void SetGuideOverlayCommand_TogglesOffWhenSameOverlayIsSet()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+        viewModel.SetGuideOverlayCommand.Execute(GuideOverlay.HeatMap);
+        Assert.Equal(GuideOverlay.HeatMap, viewModel.GuideOverlay);
+
+        //Act - Set the same overlay again
+        viewModel.SetGuideOverlayCommand.Execute(GuideOverlay.HeatMap);
+
+        //Assert - Should toggle off to None
+        Assert.Equal(GuideOverlay.None, viewModel.GuideOverlay);
+    }
+
+    [Fact]
     public void ToggleRuleOfThirdsGuideCommand_TogglesGuideOverlay()
     {
         //Arrange

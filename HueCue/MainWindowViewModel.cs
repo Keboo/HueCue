@@ -137,7 +137,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void SetGuideOverlay(GuideOverlay guideOverlay)
     {
-        GuideOverlay = guideOverlay;
+        // Toggle off if the same overlay is already active, otherwise set the new overlay
+        GuideOverlay = GuideOverlay == guideOverlay ? GuideOverlay.None : guideOverlay;
         
         // Update the current frame display
         if (_currentFrame?.IsEmpty == false && HasVideo)

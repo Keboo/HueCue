@@ -48,7 +48,8 @@
         <Separator />
         <MenuItem Header="Rule of Thirds Guide" IsCheckable="True" 
                   IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.RuleOfThirds}, Mode=OneWay}"
-                  Command="{Binding ToggleRuleOfThirdsGuideCommand}"/>
+                  Command="{Binding SetGuideOverlayCommand}"
+                  CommandParameter="{x:Static local:GuideOverlay.RuleOfThirds}"/>
         <MenuItem Header="Heat Map Guide" IsCheckable="True" 
                   IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.HeatMap}, Mode=OneWay}"
                   Command="{Binding SetGuideOverlayCommand}"
