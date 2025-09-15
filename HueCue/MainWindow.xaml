@@ -1,4 +1,4 @@
-﻿<Window x:Class="HueCue.MainWindow"
+<Window x:Class="HueCue.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -49,6 +49,10 @@
         <MenuItem Header="Rule of Thirds Guide" IsCheckable="True" 
                   IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.RuleOfThirds}, Mode=OneWay}"
                   Command="{Binding ToggleRuleOfThirdsGuideCommand}"/>
+        <MenuItem Header="Heat Map Guide" IsCheckable="True" 
+                  IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.HeatMap}, Mode=OneWay}"
+                  Command="{Binding SetGuideOverlayCommand}"
+                  CommandParameter="{x:Static local:GuideOverlay.HeatMap}"/>
         <Separator />
         <MenuItem Header="Always on Top" IsCheckable="True" 
                   IsChecked="{Binding TopMost}"

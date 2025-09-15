@@ -3,5 +3,6 @@ namespace HueCue;
 public enum GuideOverlay
 {
     None,
-    RuleOfThirds
+    RuleOfThirds,
+    HeatMap
 }
