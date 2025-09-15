@@ -39,8 +39,8 @@ public class AjaHeloStreamSource : IDisposable
                 return null;
 
             // Convert byte array to Mat
-            using var vector = new VectorOfByte(imageData);
-            var mat = CvInvoke.Imdecode(vector, ImreadModes.Color);
+            using Mat mat = new();
+            CvInvoke.Imdecode(imageData, ImreadModes.AnyColor, mat);
             
             // Clone the mat to ensure it's independent of the vector, then dispose original
             if (mat?.IsEmpty == false)
