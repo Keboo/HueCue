@@ -46,6 +46,15 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _faceDetectionEnabled = true;
 
+    partial void OnFaceDetectionEnabledChanged(bool oldValue, bool newValue)
+    {
+        // Update the current frame display
+        if (_currentFrame?.IsEmpty == false && HasVideo)
+        {
+            UpdateVideoFrame();
+        }
+    }
+
     [ObservableProperty]
     private bool _faceDetectionAvailable = true;
 
@@ -151,18 +160,6 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleRuleOfThirdsGuide()
     {
         GuideOverlay = GuideOverlay == GuideOverlay.RuleOfThirds ? GuideOverlay.None : GuideOverlay.RuleOfThirds;
-        
-        // Update the current frame display
-        if (_currentFrame?.IsEmpty == false && HasVideo)
-        {
-            UpdateVideoFrame();
-        }
-    }
-
-    [RelayCommand]
-    private void ToggleFaceDetection()
-    {
-        FaceDetectionEnabled = !FaceDetectionEnabled;
         
         // Update the current frame display
         if (_currentFrame?.IsEmpty == false && HasVideo)

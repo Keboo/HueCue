@@ -41,9 +41,8 @@
                   IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Below}, Mode=OneWay}"
                   />
         <Separator />
-        <MenuItem Header="Enable Face Detection" IsCheckable="True" 
+        <MenuItem Header="Enable Face Detection"
                   IsChecked="{Binding FaceDetectionEnabled}"
-                  Command="{Binding ToggleFaceDetectionCommand}"
                   IsEnabled="{Binding FaceDetectionAvailable}"/>
         <Separator />
         <MenuItem Header="Rule of Thirds Guide" IsCheckable="True" 
