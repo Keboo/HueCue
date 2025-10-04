@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Windows.Input;
-using Velopack;
 
 namespace HueCue;
 
@@ -14,7 +13,7 @@ public partial class MainWindow
         DataContext = viewModel;
         InitializeComponent();
 
-        // Set window title with version information when installed
+        // Set window title with version information
         SetWindowTitle();
 
         CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, OnClose));
@@ -26,17 +25,12 @@ public partial class MainWindow
         
         try
         {
-            // Check if the application is installed via Velopack
-            UpdateManager updateManager = new(new Velopack.Sources.VelopackFlowSource());
-            if (updateManager.IsInstalled)
+            // Get version from assembly
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version != null)
             {
-                // Get version from assembly
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                if (version != null)
-                {
-                    Title = $"{baseTitle} v{version.Major}.{version.Minor}.{version.Build}";
-                    return;
-                }
+                Title = $"{baseTitle} v{version.Major}.{version.Minor}.{version.Build}";
+                return;
             }
         }
         catch
