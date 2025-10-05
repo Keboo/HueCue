@@ -47,7 +47,6 @@
     <PackageReference Include="Emgu.CV.runtime.windows" />
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="Velopack" />
-    <PackageReference Include="log4net" />
   </ItemGroup>
 
   <ItemGroup>
