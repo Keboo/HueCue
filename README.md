@@ -8,20 +8,23 @@ A WPF application for viewing video and image files with real-time histogram ove
 - **Real-time Histogram**: RGB histogram visualization overlaid on video or image
 - **Performance Optimized**: Histogram updates every 1 second for optimal performance
 - **User-friendly Interface**: Simple menu-driven interface
+- **BlackMagic ATEM Integration**: Connect to ATEM switchers to monitor preview and program inputs in real-time
 
 ## Usage
 
 1. **Open File**: Use `File > Open Video/Image...` to select a video or image file
 2. **Playback Control**: Use `Playback > Play/Pause` to control video playback
 3. **Histogram View**: The RGB histogram appears in the overlay area of the video or image
+4. **ATEM Integration**: Use `File > Connect to ATEM` to connect to a BlackMagic ATEM switcher (default IP: 192.168.10.240)
 
 ## Technical Details
 
 Built with:
-- .NET 8.0 WPF
+- .NET 9.0 WPF
 - Emgu CV for video processing
 - CommunityToolkit.Mvvm for MVVM pattern
 - Material Design themes
+- Custom ATEM protocol implementation for BlackMagic switcher integration
 
 ## Deployment
 

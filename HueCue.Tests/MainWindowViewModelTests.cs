@@ -21,6 +21,9 @@ public partial class MainWindowViewModelTests
         Assert.False(viewModel.IsLiveStreaming);
         Assert.Equal(HistogramOverlay.Below, viewModel.Overlay);
         Assert.False(viewModel.TopMost);
+        Assert.Null(viewModel.AtemPreviewInput);
+        Assert.Null(viewModel.AtemProgramInput);
+        Assert.False(viewModel.AtemConnected);
     }
 
     [Fact]
@@ -214,5 +217,32 @@ public partial class MainWindowViewModelTests
         //Assert
         Assert.True(canExecuteOpen); // Should always be able to open files
         Assert.False(canExecutePlayPause); // Should not be able to play/pause without video
+    }
+
+    [Fact]
+    public void ConnectToAtemCommand_CanAlwaysExecute()
+    {
+        //Arrange
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Act
+        bool canExecute = viewModel.ConnectToAtemCommand.CanExecute(null);
+
+        //Assert
+        Assert.True(canExecute);
+    }
+
+    [Fact]
+    public void Constructor_SetsDefaultAtemValues()
+    {
+        //Arrange & Act
+        AutoMocker mocker = new();
+        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
+
+        //Assert
+        Assert.Null(viewModel.AtemPreviewInput);
+        Assert.Null(viewModel.AtemProgramInput);
+        Assert.False(viewModel.AtemConnected);
     }
 }
