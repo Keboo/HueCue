@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -223,24 +224,36 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnAtemConnected(object? sender, EventArgs e)
     {
-        AtemConnected = true;
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            AtemConnected = true;
+        });
     }
 
     private void OnAtemDisconnected(object? sender, EventArgs e)
     {
-        AtemConnected = false;
-        AtemPreviewInput = null;
-        AtemProgramInput = null;
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            AtemConnected = false;
+            AtemPreviewInput = null;
+            AtemProgramInput = null;
+        });
     }
 
     private void OnAtemPreviewChanged(object? sender, AtemInputChangedEventArgs e)
     {
-        AtemPreviewInput = e.InputName;
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            AtemPreviewInput = e.InputName;
+        });
     }
 
     private void OnAtemProgramChanged(object? sender, AtemInputChangedEventArgs e)
     {
-        AtemProgramInput = e.InputName;
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            AtemProgramInput = e.InputName;
+        });
     }
 
     private void LoadFile(string filePath)
