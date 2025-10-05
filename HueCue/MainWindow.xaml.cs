@@ -28,15 +28,10 @@ public partial class MainWindow
         {
             // Check if the application is installed via Velopack
             UpdateManager updateManager = new(new Velopack.Sources.VelopackFlowSource());
-            if (updateManager.IsInstalled)
+            if (updateManager.IsInstalled && updateManager.CurrentVersion is { } currentVersion)
             {
-                // Get version from assembly
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                if (version != null)
-                {
-                    Title = $"{baseTitle} v{version.Major}.{version.Minor}.{version.Build}";
-                    return;
-                }
+                Title = $"{baseTitle} v{currentVersion}";
+                return;
             }
         }
         catch

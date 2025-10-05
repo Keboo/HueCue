@@ -1,4 +1,4 @@
-﻿<Window x:Class="HueCue.MainWindow"
+<Window x:Class="HueCue.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -41,18 +41,21 @@
                   IsChecked="{Binding Overlay, Converter={StaticResource HistogramOverlayToBooleanConverter}, ConverterParameter={x:Static local:HistogramOverlay.Below}, Mode=OneWay}"
                   />
         <Separator />
-        <MenuItem Header="Enable Face Detection" IsCheckable="True" 
+        <MenuItem Header="Enable Face Detection"
                   IsChecked="{Binding FaceDetectionEnabled}"
-                  Command="{Binding ToggleFaceDetectionCommand}"
                   IsEnabled="{Binding FaceDetectionAvailable}"/>
         <Separator />
         <MenuItem Header="Rule of Thirds Guide" IsCheckable="True" 
                   IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.RuleOfThirds}, Mode=OneWay}"
-                  Command="{Binding ToggleRuleOfThirdsGuideCommand}"/>
+                  Command="{Binding SetGuideOverlayCommand}"
+                  CommandParameter="{x:Static local:GuideOverlay.RuleOfThirds}"/>
+        <MenuItem Header="Heat Map Guide" IsCheckable="True" 
+                  IsChecked="{Binding GuideOverlay, Converter={StaticResource GuideOverlayToBooleanConverter}, ConverterParameter={x:Static local:GuideOverlay.HeatMap}, Mode=OneWay}"
+                  Command="{Binding SetGuideOverlayCommand}"
+                  CommandParameter="{x:Static local:GuideOverlay.HeatMap}"/>
         <Separator />
         <MenuItem Header="Always on Top" IsCheckable="True" 
-                  IsChecked="{Binding TopMost}"
-                  Command="{Binding ToggleTopMostCommand}"/>
+                  IsChecked="{Binding TopMost}" />
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 

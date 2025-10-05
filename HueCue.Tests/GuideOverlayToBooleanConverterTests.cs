@@ -68,4 +68,30 @@ public class GuideOverlayToBooleanConverterTests
         // Assert
         Assert.Equal(GuideOverlay.None, result);
     }
+
+    [Fact]
+    public void Convert_ReturnsTrue_WhenHeatMapValueMatchesParameter()
+    {
+        // Arrange
+        var converter = new GuideOverlayToBooleanConverter();
+        
+        // Act
+        var result = converter.Convert(GuideOverlay.HeatMap, typeof(bool), GuideOverlay.HeatMap, CultureInfo.InvariantCulture);
+        
+        // Assert
+        Assert.True((bool)result);
+    }
+
+    [Fact]
+    public void ConvertBack_ReturnsHeatMap_WhenValueIsTrue()
+    {
+        // Arrange
+        var converter = new GuideOverlayToBooleanConverter();
+        
+        // Act
+        var result = converter.ConvertBack(true, typeof(GuideOverlay), GuideOverlay.HeatMap, CultureInfo.InvariantCulture);
+        
+        // Assert
+        Assert.Equal(GuideOverlay.HeatMap, result);
+    }
 }

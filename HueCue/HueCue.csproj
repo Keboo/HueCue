@@ -6,6 +6,7 @@
     <Version>1.0.0</Version>
 
     <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <StartupObject>HueCue.App</StartupObject>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>

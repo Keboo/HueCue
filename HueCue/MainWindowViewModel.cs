@@ -46,6 +46,15 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _faceDetectionEnabled = true;
 
+    partial void OnFaceDetectionEnabledChanged(bool oldValue, bool newValue)
+    {
+        // Update the current frame display
+        if (_currentFrame?.IsEmpty == false && HasVideo)
+        {
+            UpdateVideoFrame();
+        }
+    }
+
     [ObservableProperty]
     private bool _faceDetectionAvailable = true;
 
@@ -137,7 +146,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void SetGuideOverlay(GuideOverlay guideOverlay)
     {
-        GuideOverlay = guideOverlay;
+        // Toggle off if the same overlay is already active, otherwise set the new overlay
+        GuideOverlay = GuideOverlay == guideOverlay ? GuideOverlay.None : guideOverlay;
         
         // Update the current frame display
         if (_currentFrame?.IsEmpty == false && HasVideo)
@@ -156,24 +166,6 @@ public partial class MainWindowViewModel : ObservableObject
         {
             UpdateVideoFrame();
         }
-    }
-
-    [RelayCommand]
-    private void ToggleFaceDetection()
-    {
-        FaceDetectionEnabled = !FaceDetectionEnabled;
-        
-        // Update the current frame display
-        if (_currentFrame?.IsEmpty == false && HasVideo)
-        {
-            UpdateVideoFrame();
-        }
-    }
-
-    [RelayCommand]
-    private void ToggleTopMost()
-    {
-        TopMost = !TopMost;
     }
 
     private void LoadFile(string filePath)
@@ -573,6 +565,8 @@ public partial class MainWindowViewModel : ObservableObject
         {
             case GuideOverlay.RuleOfThirds:
                 return DrawRuleOfThirdsGuides(frame);
+            case GuideOverlay.HeatMap:
+                return DrawHeatMapGuide(frame);
             default:
                 return frame;
         }
@@ -620,6 +614,60 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error drawing rule of thirds guides: {ex.Message}");
+        }
+        
+        return frame;
+    }
+
+    private Mat DrawHeatMapGuide(Mat frame)
+    {
+        try
+        {
+            int width = frame.Width;
+            int height = frame.Height;
+            
+            // Create a semi-transparent overlay
+            using var overlay = new Mat(height, width, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
+            overlay.SetTo(new MCvScalar(0, 0, 0)); // Initialize to black
+            
+            // Define zones for ideal head placement
+            // Green zones: upper third of frame, centered horizontally (ideal for talking heads)
+            int topZoneHeight = height / 3;
+            int centerWidth = width / 3;
+            int centerStart = width / 3;
+            
+            // Ideal zone (brightest green): upper center
+            var idealRect = new System.Drawing.Rectangle(centerStart, 0, centerWidth, topZoneHeight);
+            CvInvoke.Rectangle(overlay, idealRect, new MCvScalar(0, 255, 0), -1); // Bright green
+            
+            // Good zones (medium green): upper left and right
+            var leftGoodRect = new System.Drawing.Rectangle(0, 0, centerStart, topZoneHeight);
+            var rightGoodRect = new System.Drawing.Rectangle(centerStart + centerWidth, 0, centerStart, topZoneHeight);
+            CvInvoke.Rectangle(overlay, leftGoodRect, new MCvScalar(0, 180, 0), -1); // Medium green
+            CvInvoke.Rectangle(overlay, rightGoodRect, new MCvScalar(0, 180, 0), -1); // Medium green
+            
+            // Acceptable zones (light green): middle third, center
+            var middleRect = new System.Drawing.Rectangle(centerStart, topZoneHeight, centerWidth, topZoneHeight);
+            CvInvoke.Rectangle(overlay, middleRect, new MCvScalar(0, 120, 0), -1); // Light green
+            
+            // Less ideal zones (yellow): middle left and right
+            var middleLeftRect = new System.Drawing.Rectangle(0, topZoneHeight, centerStart, topZoneHeight);
+            var middleRightRect = new System.Drawing.Rectangle(centerStart + centerWidth, topZoneHeight, centerStart, topZoneHeight);
+            CvInvoke.Rectangle(overlay, middleLeftRect, new MCvScalar(0, 200, 200), -1); // Yellow
+            CvInvoke.Rectangle(overlay, middleRightRect, new MCvScalar(0, 200, 200), -1); // Yellow
+            
+            // Poor zones (red): bottom third
+            var bottomRect = new System.Drawing.Rectangle(0, 2 * topZoneHeight, width, height - 2 * topZoneHeight);
+            CvInvoke.Rectangle(overlay, bottomRect, new MCvScalar(0, 0, 255), -1); // Red
+            
+            // Blend the overlay with the original frame (30% opacity)
+            double alpha = 0.3; // Semi-transparent
+            double beta = 1.0 - alpha;
+            CvInvoke.AddWeighted(frame, beta, overlay, alpha, 0, frame);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error drawing heat map guide: {ex.Message}");
         }
         
         return frame;
