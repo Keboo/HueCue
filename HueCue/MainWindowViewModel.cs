@@ -168,12 +168,6 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void ToggleTopMost()
-    {
-        TopMost = !TopMost;
-    }
-
     private void LoadFile(string filePath)
     {
         if (IsImageFile(filePath))
