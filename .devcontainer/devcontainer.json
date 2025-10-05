@@ -6,7 +6,8 @@
       "version": "9.0",
       "dotnetRuntimeVersions": "9.0",
       "aspNetCoreRuntimeVersions": "9.0"
-    }
+    },
+    "ghcr.io/devcontainers/features/git-lfs:1": {}
   },
   "customizations": {
     "vscode": {
@@ -16,6 +17,6 @@
       ]
     }
   },
-  "postCreateCommand": "dotnet restore",
+  "postCreateCommand": "git lfs install && dotnet restore",
   "remoteUser": "vscode"
 }
