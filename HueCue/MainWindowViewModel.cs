@@ -64,6 +64,17 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _topMost;
 
+    [ObservableProperty]
+    private string? _atemPreviewInput;
+
+    [ObservableProperty]
+    private string? _atemProgramInput;
+
+    [ObservableProperty]
+    private bool _atemConnected;
+
+    private AtemConnection? _atemConnection;
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
@@ -174,6 +185,62 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleTopMost()
     {
         TopMost = !TopMost;
+    }
+
+    [RelayCommand]
+    private async Task ConnectToAtem()
+    {
+        if (_atemConnected)
+        {
+            // Disconnect
+            _atemConnection?.Disconnect();
+            _atemConnection?.Dispose();
+            _atemConnection = null;
+            AtemConnected = false;
+            AtemPreviewInput = null;
+            AtemProgramInput = null;
+            return;
+        }
+
+        // TODO: In a production app, this IP address should come from user settings
+        // For now, using a default ATEM IP address
+        string atemIpAddress = "192.168.10.240"; // Common default ATEM IP
+
+        _atemConnection = new AtemConnection();
+        _atemConnection.Connected += OnAtemConnected;
+        _atemConnection.Disconnected += OnAtemDisconnected;
+        _atemConnection.PreviewInputChanged += OnAtemPreviewChanged;
+        _atemConnection.ProgramInputChanged += OnAtemProgramChanged;
+
+        var connected = await _atemConnection.ConnectAsync(atemIpAddress);
+        if (!connected)
+        {
+            _atemConnection.Dispose();
+            _atemConnection = null;
+            System.Diagnostics.Debug.WriteLine($"Failed to connect to ATEM at {atemIpAddress}");
+        }
+    }
+
+    private void OnAtemConnected(object? sender, EventArgs e)
+    {
+        AtemConnected = true;
+    }
+
+    private void OnAtemDisconnected(object? sender, EventArgs e)
+    {
+        AtemConnected = false;
+        AtemPreviewInput = null;
+        AtemProgramInput = null;
+    }
+
+    private void OnAtemPreviewChanged(object? sender, AtemInputChangedEventArgs e)
+    {
+        AtemPreviewInput = e.InputName;
+    }
+
+    private void OnAtemProgramChanged(object? sender, AtemInputChangedEventArgs e)
+    {
+        AtemProgramInput = e.InputName;
     }
 
     private void LoadFile(string filePath)
@@ -749,5 +816,6 @@ public partial class MainWindowViewModel : ObservableObject
         _currentFrame?.Dispose();
         _faceDetector?.Dispose();
         _streamSource?.Dispose();
+        _atemConnection?.Dispose();
     }
 }

@@ -26,6 +26,19 @@
         <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}"/>
         <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}"/>
         <Separator />
+        <MenuItem Header="Connect to _ATEM" Command="{Binding ConnectToAtemCommand}">
+          <MenuItem.Style>
+            <Style TargetType="MenuItem">
+              <Setter Property="Header" Value="Connect to _ATEM" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding AtemConnected}" Value="True">
+                  <Setter Property="Header" Value="Disconnect from _ATEM" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </MenuItem.Style>
+        </MenuItem>
+        <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
       <MenuItem Header="_View">
@@ -183,6 +196,62 @@
             </Style>
           </TextBlock.Style>
         </TextBlock>
+      </StatusBarItem>
+      <Separator>
+        <Separator.Style>
+          <Style TargetType="Separator">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding AtemConnected}" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Separator.Style>
+      </Separator>
+      <StatusBarItem>
+        <StatusBarItem.Style>
+          <Style TargetType="StatusBarItem">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding AtemConnected}" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </StatusBarItem.Style>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="ATEM Preview: " FontWeight="Bold" />
+          <TextBlock Text="{Binding AtemPreviewInput}" />
+        </StackPanel>
+      </StatusBarItem>
+      <Separator>
+        <Separator.Style>
+          <Style TargetType="Separator">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding AtemConnected}" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Separator.Style>
+      </Separator>
+      <StatusBarItem>
+        <StatusBarItem.Style>
+          <Style TargetType="StatusBarItem">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding AtemConnected}" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </StatusBarItem.Style>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="ATEM Program: " FontWeight="Bold" />
+          <TextBlock Text="{Binding AtemProgramInput}" />
+        </StackPanel>
       </StatusBarItem>
     </StatusBar>
   </Grid>
