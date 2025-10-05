@@ -28,6 +28,23 @@ public partial class MainWindowViewModel : ObservableObject
     private FaceDetectorYN? _faceDetector;
     private AjaHeloStreamSource? _streamSource;
 
+    // Define 12 visually distinct colors for face bounding boxes (BGR format for OpenCV)
+    private static readonly MCvScalar[] FaceColors = new[]
+    {
+        new MCvScalar(0, 255, 0),      // Green
+        new MCvScalar(255, 0, 0),      // Blue
+        new MCvScalar(0, 0, 255),      // Red
+        new MCvScalar(0, 255, 255),    // Yellow
+        new MCvScalar(255, 0, 255),    // Magenta
+        new MCvScalar(255, 255, 0),    // Cyan
+        new MCvScalar(0, 165, 255),    // Orange
+        new MCvScalar(128, 0, 128),    // Purple
+        new MCvScalar(255, 192, 203),  // Pink
+        new MCvScalar(0, 255, 127),    // Spring Green
+        new MCvScalar(255, 255, 255),  // White
+        new MCvScalar(64, 224, 208)    // Turquoise
+    };
+
     [ObservableProperty]
     private ImageSource? _videoSource;
 
@@ -500,19 +517,22 @@ public partial class MainWindowViewModel : ObservableObject
                         float score = faceData[baseIndex + 14];
 
                         // Only draw if confidence is high enough
-                        if (score > 0.5f)
+                        if (score > 0.4f)
                         {
                             var rect = new System.Drawing.Rectangle(
                                 (int)x, (int)y, (int)w, (int)h);
 
+                            // Get color for this face (cycle through colors if more than 12 faces)
+                            var color = FaceColors[i % FaceColors.Length];
+
                             // Draw bounding box
-                            CvInvoke.Rectangle(frame, rect, new MCvScalar(0, 255, 0), 2);
+                            CvInvoke.Rectangle(frame, rect, color, 2);
                             
                             // Draw confidence score
                             string scoreText = $"{score:F2}";
                             var textPoint = new System.Drawing.Point((int)x, (int)y - 10);
                             CvInvoke.PutText(frame, scoreText, textPoint, 
-                                FontFace.HersheySimplex, 0.6, new MCvScalar(0, 255, 0), 2);
+                                FontFace.HersheySimplex, 0.6, color, 2);
 
                             // Draw facial landmarks if available
                             DrawFacialLandmarks(frame, faceData, baseIndex, scaleX, scaleY);
