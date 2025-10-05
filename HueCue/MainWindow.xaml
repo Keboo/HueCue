@@ -55,8 +55,7 @@
                   CommandParameter="{x:Static local:GuideOverlay.HeatMap}"/>
         <Separator />
         <MenuItem Header="Always on Top" IsCheckable="True" 
-                  IsChecked="{Binding TopMost}"
-                  Command="{Binding ToggleTopMostCommand}"/>
+                  IsChecked="{Binding TopMost}" />
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
