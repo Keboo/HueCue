@@ -31,7 +31,7 @@ jobs:
         run: dotnet tool restore
 
       - name: dotnet build
-        run: dotnet build --configuration Release --version "${{ inputs.version }}"
+        run: dotnet build --configuration Release --version-suffix "${{ inputs.version }}"
 
       - name: dotnet test
         run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ${{github.workspace}}/.build/coverage
