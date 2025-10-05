@@ -33,7 +33,6 @@ public partial class MainWindow
                 Title = $"{baseTitle} v{currentVersion}";
                 return;
             }
-            }
         }
         catch
         {
