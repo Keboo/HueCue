@@ -112,13 +112,13 @@
              VerticalAlignment="Center"/>
       
       <!-- Rule of Thirds Guide Overlay -->
-      <Canvas x:Name="RuleOfThirdsOverlay"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center"
-              Width="{Binding ActualWidth, ElementName=VideoImage}"
-              Height="{Binding ActualHeight, ElementName=VideoImage}">
-        <Canvas.Style>
-          <Style TargetType="Canvas">
+      <Grid x:Name="RuleOfThirdsOverlay"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="{Binding ActualWidth, ElementName=VideoImage}"
+            Height="{Binding ActualHeight, ElementName=VideoImage}">
+        <Grid.Style>
+          <Style TargetType="Grid">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
               <DataTrigger Binding="{Binding GuideOverlay}" Value="{x:Static local:GuideOverlay.RuleOfThirds}">
@@ -126,7 +126,7 @@
               </DataTrigger>
             </Style.Triggers>
           </Style>
-        </Canvas.Style>
+        </Grid.Style>
         
         <!-- Vertical Lines -->
         <Line X1="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
@@ -155,16 +155,16 @@
               Y2="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
               Stroke="Red"
               StrokeThickness="2"/>
-      </Canvas>
+      </Grid>
       
       <!-- Heat Map Guide Overlay -->
-      <Canvas x:Name="HeatMapOverlay"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center"
-              Width="{Binding ActualWidth, ElementName=VideoImage}"
-              Height="{Binding ActualHeight, ElementName=VideoImage}">
-        <Canvas.Style>
-          <Style TargetType="Canvas">
+      <Grid x:Name="HeatMapOverlay"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="{Binding ActualWidth, ElementName=VideoImage}"
+            Height="{Binding ActualHeight, ElementName=VideoImage}">
+        <Grid.Style>
+          <Style TargetType="Grid">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
               <DataTrigger Binding="{Binding GuideOverlay}" Value="{x:Static local:GuideOverlay.HeatMap}">
@@ -172,64 +172,53 @@
               </DataTrigger>
             </Style.Triggers>
           </Style>
-        </Canvas.Style>
+        </Grid.Style>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         
         <!-- Upper left (medium green) -->
-        <Rectangle Canvas.Left="0"
-                   Canvas.Top="0"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="0" Grid.Column="0"
                    Fill="#00B400"
                    Opacity="0.3"/>
         
         <!-- Upper center (bright green) -->
-        <Rectangle Canvas.Left="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Canvas.Top="0"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="0" Grid.Column="1"
                    Fill="#00FF00"
                    Opacity="0.3"/>
         
         <!-- Upper right (medium green) -->
-        <Rectangle Canvas.Left="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-                   Canvas.Top="0"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="0" Grid.Column="2"
                    Fill="#00B400"
                    Opacity="0.3"/>
         
         <!-- Middle left (yellow) -->
-        <Rectangle Canvas.Left="0"
-                   Canvas.Top="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="1" Grid.Column="0"
                    Fill="#C8C800"
                    Opacity="0.3"/>
         
         <!-- Middle center (light green) -->
-        <Rectangle Canvas.Left="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Canvas.Top="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="1" Grid.Column="1"
                    Fill="#007800"
                    Opacity="0.3"/>
         
         <!-- Middle right (yellow) -->
-        <Rectangle Canvas.Left="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-                   Canvas.Top="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Width="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <Rectangle Grid.Row="1" Grid.Column="2"
                    Fill="#C8C800"
                    Opacity="0.3"/>
         
-        <!-- Bottom (red) -->
-        <Rectangle Canvas.Left="0"
-                   Canvas.Top="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-                   Width="{Binding ActualWidth, ElementName=VideoImage}"
-                   Height="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
+        <!-- Bottom (red) - spans all columns -->
+        <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
                    Fill="#FF0000"
                    Opacity="0.3"/>
-      </Canvas>
+      </Grid>
       
       <!-- Histogram overlay -->
       <Image x:Name="HistogramImage"

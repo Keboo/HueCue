@@ -9,7 +9,7 @@ namespace HueCue;
 /// </summary>
 public class ThirdsConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is double dimension && parameter is string paramStr && int.TryParse(paramStr, out int third))
         {
@@ -18,7 +18,7 @@ public class ThirdsConverter : IValueConverter
         return 0.0;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
