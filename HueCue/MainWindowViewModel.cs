@@ -79,7 +79,7 @@ public partial class MainWindowViewModel : ObservableObject
     private int _detectedFaceCount;
 
     [ObservableProperty]
-    private HistogramOverlay _overlay = HistogramOverlay.Below;
+    private HistogramOverlay _overlay = HistogramOverlay.Right;
 
     [ObservableProperty]
     private bool _isLiveStreaming;
@@ -452,10 +452,7 @@ public partial class MainWindowViewModel : ObservableObject
                 displayFrame = DetectAndDrawFaces(displayFrame);
             }
 
-            if (GuideOverlay != GuideOverlay.None)
-            {
-                displayFrame = DrawGuideOverlays(displayFrame);
-            }
+            // Guide overlays are now rendered as WPF elements, not drawn on the frame
 
             VideoSource = MatToBitmapSource(displayFrame);
             displayFrame.Dispose();
@@ -579,119 +576,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private Mat DrawGuideOverlays(Mat frame)
-    {
-        switch (GuideOverlay)
-        {
-            case GuideOverlay.RuleOfThirds:
-                return DrawRuleOfThirdsGuides(frame);
-            case GuideOverlay.HeatMap:
-                return DrawHeatMapGuide(frame);
-            default:
-                return frame;
-        }
-    }
 
-    private Mat DrawRuleOfThirdsGuides(Mat frame)
-    {
-        try
-        {
-            int width = frame.Width;
-            int height = frame.Height;
-            
-            // Red color for guide lines (BGR format in OpenCV)
-            var lineColor = new MCvScalar(0, 0, 255); // Red color
-            int lineThickness = 2;
-            
-            // Calculate positions for rule of thirds lines
-            int verticalLine1 = width / 3;
-            int verticalLine2 = 2 * width / 3;
-            int horizontalLine1 = height / 3;
-            int horizontalLine2 = 2 * height / 3;
-            
-            // Draw vertical lines
-            CvInvoke.Line(frame, 
-                new System.Drawing.Point(verticalLine1, 0), 
-                new System.Drawing.Point(verticalLine1, height), 
-                lineColor, lineThickness);
-            
-            CvInvoke.Line(frame, 
-                new System.Drawing.Point(verticalLine2, 0), 
-                new System.Drawing.Point(verticalLine2, height), 
-                lineColor, lineThickness);
-            
-            // Draw horizontal lines
-            CvInvoke.Line(frame, 
-                new System.Drawing.Point(0, horizontalLine1), 
-                new System.Drawing.Point(width, horizontalLine1), 
-                lineColor, lineThickness);
-            
-            CvInvoke.Line(frame, 
-                new System.Drawing.Point(0, horizontalLine2), 
-                new System.Drawing.Point(width, horizontalLine2), 
-                lineColor, lineThickness);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error drawing rule of thirds guides: {ex.Message}");
-        }
-        
-        return frame;
-    }
-
-    private Mat DrawHeatMapGuide(Mat frame)
-    {
-        try
-        {
-            int width = frame.Width;
-            int height = frame.Height;
-            
-            // Create a semi-transparent overlay
-            using var overlay = new Mat(height, width, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
-            overlay.SetTo(new MCvScalar(0, 0, 0)); // Initialize to black
-            
-            // Define zones for ideal head placement
-            // Green zones: upper third of frame, centered horizontally (ideal for talking heads)
-            int topZoneHeight = height / 3;
-            int centerWidth = width / 3;
-            int centerStart = width / 3;
-            
-            // Ideal zone (brightest green): upper center
-            var idealRect = new System.Drawing.Rectangle(centerStart, 0, centerWidth, topZoneHeight);
-            CvInvoke.Rectangle(overlay, idealRect, new MCvScalar(0, 255, 0), -1); // Bright green
-            
-            // Good zones (medium green): upper left and right
-            var leftGoodRect = new System.Drawing.Rectangle(0, 0, centerStart, topZoneHeight);
-            var rightGoodRect = new System.Drawing.Rectangle(centerStart + centerWidth, 0, centerStart, topZoneHeight);
-            CvInvoke.Rectangle(overlay, leftGoodRect, new MCvScalar(0, 180, 0), -1); // Medium green
-            CvInvoke.Rectangle(overlay, rightGoodRect, new MCvScalar(0, 180, 0), -1); // Medium green
-            
-            // Acceptable zones (light green): middle third, center
-            var middleRect = new System.Drawing.Rectangle(centerStart, topZoneHeight, centerWidth, topZoneHeight);
-            CvInvoke.Rectangle(overlay, middleRect, new MCvScalar(0, 120, 0), -1); // Light green
-            
-            // Less ideal zones (yellow): middle left and right
-            var middleLeftRect = new System.Drawing.Rectangle(0, topZoneHeight, centerStart, topZoneHeight);
-            var middleRightRect = new System.Drawing.Rectangle(centerStart + centerWidth, topZoneHeight, centerStart, topZoneHeight);
-            CvInvoke.Rectangle(overlay, middleLeftRect, new MCvScalar(0, 200, 200), -1); // Yellow
-            CvInvoke.Rectangle(overlay, middleRightRect, new MCvScalar(0, 200, 200), -1); // Yellow
-            
-            // Poor zones (red): bottom third
-            var bottomRect = new System.Drawing.Rectangle(0, 2 * topZoneHeight, width, height - 2 * topZoneHeight);
-            CvInvoke.Rectangle(overlay, bottomRect, new MCvScalar(0, 0, 255), -1); // Red
-            
-            // Blend the overlay with the original frame (30% opacity)
-            double alpha = 0.3; // Semi-transparent
-            double beta = 1.0 - alpha;
-            CvInvoke.AddWeighted(frame, beta, overlay, alpha, 0, frame);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error drawing heat map guide: {ex.Message}");
-        }
-        
-        return frame;
-    }
 
     private void UpdateHistogram()
     {

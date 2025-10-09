@@ -19,7 +19,7 @@ public partial class MainWindowViewModelTests
         Assert.False(viewModel.IsPlaying);
         Assert.False(viewModel.HasVideo);
         Assert.False(viewModel.IsLiveStreaming);
-        Assert.Equal(HistogramOverlay.Below, viewModel.Overlay);
+        Assert.Equal(HistogramOverlay.Right, viewModel.Overlay);
         Assert.False(viewModel.TopMost);
     }
 

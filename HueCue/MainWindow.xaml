@@ -13,6 +13,7 @@
     <local:BoolToPlayPauseTextConverter x:Key="PlayPauseTextConverter"/>
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
     <local:GuideOverlayToBooleanConverter x:Key="GuideOverlayToBooleanConverter" />
+    <local:ThirdsConverter x:Key="ThirdsConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -109,6 +110,102 @@
              Stretch="Uniform"
              HorizontalAlignment="Center"
              VerticalAlignment="Center"/>
+      
+      <!-- Rule of Thirds Guide Overlay -->
+      <Grid x:Name="RuleOfThirdsOverlay"
+            HorizontalAlignment="{Binding HorizontalAlignment, ElementName=VideoImage}"
+            VerticalAlignment="{Binding VerticalAlignment, ElementName=VideoImage}"
+            Width="{Binding ActualWidth, ElementName=VideoImage}"
+            Height="{Binding ActualHeight, ElementName=VideoImage}">
+        <Grid.Style>
+          <Style TargetType="Grid">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding GuideOverlay}" Value="{x:Static local:GuideOverlay.RuleOfThirds}">
+                <Setter Property="Visibility" Value="Visible"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Grid.Style>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Border BorderThickness="1,0,1,1" Grid.Column="1" Grid.Row="0" BorderBrush="Red" />
+        <Border BorderThickness="1,1,0,1" Grid.Column="2" Grid.Row="1" BorderBrush="Red" />
+        <Border BorderThickness="1,1,1,0" Grid.Column="1" Grid.Row="2" BorderBrush="Red" />
+        <Border BorderThickness="0,1,1,1" Grid.Column="0" Grid.Row="1" BorderBrush="Red" />
+      </Grid>
+      
+      <!-- Heat Map Guide Overlay -->
+      <Grid x:Name="HeatMapOverlay"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="{Binding ActualWidth, ElementName=VideoImage}"
+            Height="{Binding ActualHeight, ElementName=VideoImage}">
+        <Grid.Style>
+          <Style TargetType="Grid">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding GuideOverlay}" Value="{x:Static local:GuideOverlay.HeatMap}">
+                <Setter Property="Visibility" Value="Visible"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Grid.Style>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Upper left (medium green) -->
+        <Rectangle Grid.Row="0" Grid.Column="0"
+                   Fill="#00B400"
+                   Opacity="0.3"/>
+        
+        <!-- Upper center (bright green) -->
+        <Rectangle Grid.Row="0" Grid.Column="1"
+                   Fill="#00FF00"
+                   Opacity="0.3"/>
+        
+        <!-- Upper right (medium green) -->
+        <Rectangle Grid.Row="0" Grid.Column="2"
+                   Fill="#00B400"
+                   Opacity="0.3"/>
+        
+        <!-- Middle left (yellow) -->
+        <Rectangle Grid.Row="1" Grid.Column="0"
+                   Fill="#C8C800"
+                   Opacity="0.3"/>
+        
+        <!-- Middle center (light green) -->
+        <Rectangle Grid.Row="1" Grid.Column="1"
+                   Fill="#007800"
+                   Opacity="0.3"/>
+        
+        <!-- Middle right (yellow) -->
+        <Rectangle Grid.Row="1" Grid.Column="2"
+                   Fill="#C8C800"
+                   Opacity="0.3"/>
+        
+        <!-- Bottom (red) - spans all columns -->
+        <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                   Fill="#FF0000"
+                   Opacity="0.3"/>
+      </Grid>
       
       <!-- Histogram overlay -->
       <Image x:Name="HistogramImage"
