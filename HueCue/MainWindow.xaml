@@ -113,8 +113,8 @@
       
       <!-- Rule of Thirds Guide Overlay -->
       <Grid x:Name="RuleOfThirdsOverlay"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
+            HorizontalAlignment="{Binding HorizontalAlignment, ElementName=VideoImage}"
+            VerticalAlignment="{Binding VerticalAlignment, ElementName=VideoImage}"
             Width="{Binding ActualWidth, ElementName=VideoImage}"
             Height="{Binding ActualHeight, ElementName=VideoImage}">
         <Grid.Style>
@@ -127,34 +127,21 @@
             </Style.Triggers>
           </Style>
         </Grid.Style>
-        
-        <!-- Vertical Lines -->
-        <Line X1="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-              Y1="0"
-              X2="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-              Y2="{Binding ActualHeight, ElementName=VideoImage}"
-              Stroke="Red"
-              StrokeThickness="2"/>
-        <Line X1="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-              Y1="0"
-              X2="{Binding ActualWidth, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-              Y2="{Binding ActualHeight, ElementName=VideoImage}"
-              Stroke="Red"
-              StrokeThickness="2"/>
-        
-        <!-- Horizontal Lines -->
-        <Line X1="0"
-              Y1="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-              X2="{Binding ActualWidth, ElementName=VideoImage}"
-              Y2="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=1}"
-              Stroke="Red"
-              StrokeThickness="2"/>
-        <Line X1="0"
-              Y1="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-              X2="{Binding ActualWidth, ElementName=VideoImage}"
-              Y2="{Binding ActualHeight, ElementName=VideoImage, Converter={StaticResource ThirdsConverter}, ConverterParameter=2}"
-              Stroke="Red"
-              StrokeThickness="2"/>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Border BorderThickness="1,0,1,1" Grid.Column="1" Grid.Row="0" BorderBrush="Red" />
+        <Border BorderThickness="1,1,0,1" Grid.Column="2" Grid.Row="1" BorderBrush="Red" />
+        <Border BorderThickness="1,1,1,0" Grid.Column="1" Grid.Row="2" BorderBrush="Red" />
+        <Border BorderThickness="0,1,1,1" Grid.Column="0" Grid.Row="1" BorderBrush="Red" />
       </Grid>
       
       <!-- Heat Map Guide Overlay -->
@@ -174,14 +161,14 @@
           </Style>
         </Grid.Style>
         <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="*"/>
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="*"/>
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
         </Grid.ColumnDefinitions>
         
         <!-- Upper left (medium green) -->

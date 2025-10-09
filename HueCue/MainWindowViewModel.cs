@@ -62,7 +62,7 @@ public partial class MainWindowViewModel : ObservableObject
     private int _detectedFaceCount;
 
     [ObservableProperty]
-    private HistogramOverlay _overlay = HistogramOverlay.Below;
+    private HistogramOverlay _overlay = HistogramOverlay.Right;
 
     [ObservableProperty]
     private bool _isLiveStreaming;
