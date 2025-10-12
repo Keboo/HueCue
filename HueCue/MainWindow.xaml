@@ -149,7 +149,8 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Width="{Binding ActualWidth, ElementName=VideoImage}"
-            Height="{Binding ActualHeight, ElementName=VideoImage}">
+            Height="{Binding ActualHeight, ElementName=VideoImage}"
+            Opacity="0.5">
         <Grid.Style>
           <Style TargetType="Grid">
             <Setter Property="Visibility" Value="Collapsed"/>
@@ -164,47 +165,123 @@
           <RowDefinition />
           <RowDefinition />
           <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
+          <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition />
           <ColumnDefinition />
           <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
         </Grid.ColumnDefinitions>
         
-        <!-- Upper left (medium green) -->
-        <Rectangle Grid.Row="0" Grid.Column="0"
-                   Fill="#00B400"
-                   Opacity="0.3"/>
+        <!-- Row 0: [0.1, 0.5, 0.1, 1.0, 1.0, 1.0, 1.0, 0.5, 0.1] -->
+        <Rectangle Grid.Row="0" Grid.Column="0" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="0" Grid.Column="1" Fill="#FF8000"/>
+        <Rectangle Grid.Row="0" Grid.Column="2" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="0" Grid.Column="3" Fill="#00FF00"/>
+        <Rectangle Grid.Row="0" Grid.Column="4" Fill="#00FF00"/>
+        <Rectangle Grid.Row="0" Grid.Column="5" Fill="#00FF00"/>
+        <Rectangle Grid.Row="0" Grid.Column="6" Fill="#00FF00"/>
+        <Rectangle Grid.Row="0" Grid.Column="7" Fill="#FF8000"/>
+        <Rectangle Grid.Row="0" Grid.Column="8" Fill="#FF1A1A"/>
         
-        <!-- Upper center (bright green) -->
-        <Rectangle Grid.Row="0" Grid.Column="1"
-                   Fill="#00FF00"
-                   Opacity="0.3"/>
+        <!-- Row 1: [0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2] -->
+        <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF3333"/>
+        <Rectangle Grid.Row="1" Grid.Column="1" Fill="#B3FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="2" Fill="#00FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="3" Fill="#00FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="4" Fill="#00FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="5" Fill="#00FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="6" Fill="#00FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="7" Fill="#B3FF00"/>
+        <Rectangle Grid.Row="1" Grid.Column="8" Fill="#FF3333"/>
         
-        <!-- Upper right (medium green) -->
-        <Rectangle Grid.Row="0" Grid.Column="2"
-                   Fill="#00B400"
-                   Opacity="0.3"/>
+        <!-- Row 2: [0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2] -->
+        <Rectangle Grid.Row="2" Grid.Column="0" Fill="#FF3333"/>
+        <Rectangle Grid.Row="2" Grid.Column="1" Fill="#B3FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="2" Fill="#00FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="3" Fill="#00FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="4" Fill="#00FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="5" Fill="#00FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="6" Fill="#00FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="7" Fill="#B3FF00"/>
+        <Rectangle Grid.Row="2" Grid.Column="8" Fill="#FF3333"/>
         
-        <!-- Middle left (yellow) -->
-        <Rectangle Grid.Row="1" Grid.Column="0"
-                   Fill="#C8C800"
-                   Opacity="0.3"/>
+        <!-- Row 3: [0.1, 0.6, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.1] -->
+        <Rectangle Grid.Row="3" Grid.Column="0" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="3" Grid.Column="1" Fill="#99FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="2" Fill="#00FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="3" Fill="#00FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="4" Fill="#00FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="5" Fill="#00FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="6" Fill="#00FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="7" Fill="#99FF00"/>
+        <Rectangle Grid.Row="3" Grid.Column="8" Fill="#FF1A1A"/>
         
-        <!-- Middle center (light green) -->
-        <Rectangle Grid.Row="1" Grid.Column="1"
-                   Fill="#007800"
-                   Opacity="0.3"/>
+        <!-- Row 4: [0.1, 0.5, 0.8, 0.8, 0.8, 0.8, 0.8, 0.5, 0.1] -->
+        <Rectangle Grid.Row="4" Grid.Column="0" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="4" Grid.Column="1" Fill="#FF8000"/>
+        <Rectangle Grid.Row="4" Grid.Column="2" Fill="#CCFF00"/>
+        <Rectangle Grid.Row="4" Grid.Column="3" Fill="#CCFF00"/>
+        <Rectangle Grid.Row="4" Grid.Column="4" Fill="#CCFF00"/>
+        <Rectangle Grid.Row="4" Grid.Column="5" Fill="#CCFF00"/>
+        <Rectangle Grid.Row="4" Grid.Column="6" Fill="#CCFF00"/>
+        <Rectangle Grid.Row="4" Grid.Column="7" Fill="#FF8000"/>
+        <Rectangle Grid.Row="4" Grid.Column="8" Fill="#FF1A1A"/>
         
-        <!-- Middle right (yellow) -->
-        <Rectangle Grid.Row="1" Grid.Column="2"
-                   Fill="#C8C800"
-                   Opacity="0.3"/>
+        <!-- Row 5: [0.1, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.2, 0.1] -->
+        <Rectangle Grid.Row="5" Grid.Column="0" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="5" Grid.Column="1" Fill="#FF3333"/>
+        <Rectangle Grid.Row="5" Grid.Column="2" Fill="#FF8000"/>
+        <Rectangle Grid.Row="5" Grid.Column="3" Fill="#FF8000"/>
+        <Rectangle Grid.Row="5" Grid.Column="4" Fill="#FF8000"/>
+        <Rectangle Grid.Row="5" Grid.Column="5" Fill="#FF8000"/>
+        <Rectangle Grid.Row="5" Grid.Column="6" Fill="#FF8000"/>
+        <Rectangle Grid.Row="5" Grid.Column="7" Fill="#FF3333"/>
+        <Rectangle Grid.Row="5" Grid.Column="8" Fill="#FF1A1A"/>
         
-        <!-- Bottom (red) - spans all columns -->
-        <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
-                   Fill="#FF0000"
-                   Opacity="0.3"/>
+        <!-- Row 6: [0.0, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.0] -->
+        <Rectangle Grid.Row="6" Grid.Column="0" Fill="#FF0000"/>
+        <Rectangle Grid.Row="6" Grid.Column="1" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="6" Grid.Column="2" Fill="#FF3333"/>
+        <Rectangle Grid.Row="6" Grid.Column="3" Fill="#FF3333"/>
+        <Rectangle Grid.Row="6" Grid.Column="4" Fill="#FF3333"/>
+        <Rectangle Grid.Row="6" Grid.Column="5" Fill="#FF3333"/>
+        <Rectangle Grid.Row="6" Grid.Column="6" Fill="#FF3333"/>
+        <Rectangle Grid.Row="6" Grid.Column="7" Fill="#FF1A1A"/>
+        <Rectangle Grid.Row="6" Grid.Column="8" Fill="#FF0000"/>
+        
+        <!-- Row 7: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] -->
+        <Rectangle Grid.Row="7" Grid.Column="0" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="1" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="2" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="3" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="4" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="5" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="6" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="7" Fill="#FF0000"/>
+        <Rectangle Grid.Row="7" Grid.Column="8" Fill="#FF0000"/>
+        
+        <!-- Row 8: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] -->
+        <Rectangle Grid.Row="8" Grid.Column="0" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="1" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="2" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="3" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="4" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="5" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="6" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="7" Fill="#FF0000"/>
+        <Rectangle Grid.Row="8" Grid.Column="8" Fill="#FF0000"/>
       </Grid>
       
       <!-- Histogram overlay -->
