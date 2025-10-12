@@ -1,4 +1,5 @@
 using System.Net.Http;
+
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
@@ -41,7 +42,7 @@ public class AjaHeloStreamSource : IDisposable
             // Convert byte array to Mat
             using Mat mat = new();
             CvInvoke.Imdecode(imageData, ImreadModes.AnyColor, mat);
-            
+
             // Clone the mat to ensure it's independent of the vector, then dispose original
             if (mat?.IsEmpty == false)
             {
@@ -49,7 +50,7 @@ public class AjaHeloStreamSource : IDisposable
                 mat.Dispose();
                 return clonedMat;
             }
-            
+
             mat?.Dispose();
             return null;
         }

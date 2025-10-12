@@ -9,10 +9,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.Convert(GuideOverlay.RuleOfThirds, typeof(bool), GuideOverlay.RuleOfThirds, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.True((bool)result);
     }
@@ -22,10 +22,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.Convert(GuideOverlay.None, typeof(bool), GuideOverlay.RuleOfThirds, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.False((bool)result);
     }
@@ -35,10 +35,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.Convert("invalid", typeof(bool), GuideOverlay.RuleOfThirds, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.False((bool)result);
     }
@@ -48,10 +48,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.ConvertBack(true, typeof(GuideOverlay), GuideOverlay.RuleOfThirds, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.Equal(GuideOverlay.RuleOfThirds, result);
     }
@@ -61,10 +61,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.ConvertBack(false, typeof(GuideOverlay), GuideOverlay.RuleOfThirds, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.Equal(GuideOverlay.None, result);
     }
@@ -74,10 +74,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.Convert(GuideOverlay.HeatMap, typeof(bool), GuideOverlay.HeatMap, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.True((bool)result);
     }
@@ -87,10 +87,10 @@ public class GuideOverlayToBooleanConverterTests
     {
         // Arrange
         var converter = new GuideOverlayToBooleanConverter();
-        
+
         // Act
         var result = converter.ConvertBack(true, typeof(GuideOverlay), GuideOverlay.HeatMap, CultureInfo.InvariantCulture);
-        
+
         // Assert
         Assert.Equal(GuideOverlay.HeatMap, result);
     }

@@ -1,10 +1,14 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using System.Windows;
+using System.Windows.Threading;
+
+using CommunityToolkit.Mvvm.Messaging;
+
 using MaterialDesignThemes.Wpf;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Windows;
-using System.Windows.Threading;
+
 using Velopack;
 
 namespace HueCue;
@@ -19,7 +23,7 @@ public partial class App : Application
     {
         // Handle Velopack updates
         VelopackApp.Build().Run();
-        
+
         MainAsync(args).GetAwaiter().GetResult();
     }
 

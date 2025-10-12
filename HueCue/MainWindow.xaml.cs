@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Windows.Input;
+
 using Velopack;
 
 namespace HueCue;
@@ -23,7 +24,7 @@ public partial class MainWindow
     private void SetWindowTitle()
     {
         string baseTitle = "HueCue - ";
-        
+
         try
         {
             // Check if the application is installed via Velopack
@@ -38,7 +39,7 @@ public partial class MainWindow
         {
             // If there's any issue getting version info, fall back to base title
         }
-        
+
         Title = baseTitle;
     }
 

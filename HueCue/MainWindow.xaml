@@ -8,12 +8,14 @@
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel, IsDesignTimeCreatable=False}"
         Style="{StaticResource MaterialDesignWindow}"
         Topmost="{Binding TopMost}"
+        Opacity="{Binding WindowOpacity}"
         Height="450" Width="800">
   <Window.Resources>
     <local:BoolToPlayPauseTextConverter x:Key="PlayPauseTextConverter"/>
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
     <local:GuideOverlayToBooleanConverter x:Key="GuideOverlayToBooleanConverter" />
     <local:ThirdsConverter x:Key="ThirdsConverter" />
+    <local:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -57,6 +59,37 @@
         <Separator />
         <MenuItem Header="Always on Top" IsCheckable="True" 
                   IsChecked="{Binding TopMost}" />
+        <Separator />
+        <MenuItem Header="Opacity">
+          <MenuItem Header="100%" 
+                    Command="{Binding SetWindowOpacityCommand}"
+                    CommandParameter="1.0">
+            <MenuItem.Icon>
+              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1.0}"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="90%" 
+                    Command="{Binding SetWindowOpacityCommand}"
+                    CommandParameter="0.9">
+            <MenuItem.Icon>
+              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.9}"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="75%" 
+                    Command="{Binding SetWindowOpacityCommand}"
+                    CommandParameter="0.75">
+            <MenuItem.Icon>
+              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.75}"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="50%" 
+                    Command="{Binding SetWindowOpacityCommand}"
+                    CommandParameter="0.5">
+            <MenuItem.Icon>
+              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.5}"/>
+            </MenuItem.Icon>
+          </MenuItem>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
