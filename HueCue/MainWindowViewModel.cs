@@ -533,6 +533,9 @@ public partial class MainWindowViewModel : ObservableObject
 
                             // Draw facial landmarks if available
                             DrawFacialLandmarks(frame, faceData, baseIndex, scaleX, scaleY);
+                            
+                            // Draw looking direction indicator
+                            DrawLookingDirection(frame, faceData, baseIndex, scaleX, scaleY, color);
                         }
                     }
                 }
@@ -573,6 +576,76 @@ public partial class MainWindowViewModel : ObservableObject
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error drawing facial landmarks: {ex.Message}");
+        }
+    }
+
+    private void DrawLookingDirection(Mat frame, float[] faceData, int baseIndex, double scaleX, double scaleY, MCvScalar color)
+    {
+        try
+        {
+            // Get facial landmarks
+            float rightEyeX = faceData[baseIndex + 4] * (float)scaleX;
+            float leftEyeX = faceData[baseIndex + 6] * (float)scaleX;
+            float noseX = faceData[baseIndex + 8] * (float)scaleX;
+
+            // Get face bounding box
+            float x = faceData[baseIndex] * (float)scaleX;
+            float y = faceData[baseIndex + 1] * (float)scaleY;
+            float w = faceData[baseIndex + 2] * (float)scaleX;
+            float h = faceData[baseIndex + 3] * (float)scaleY;
+
+            // Calculate eye center
+            float eyeCenterX = (rightEyeX + leftEyeX) / 2f;
+            
+            // Determine looking direction based on nose position relative to eye center
+            // Nose to the right of eye center means looking left, and vice versa
+            float offset = noseX - eyeCenterX;
+            float eyeDistance = Math.Abs(leftEyeX - rightEyeX);
+            
+            // Normalize offset by eye distance to get a ratio
+            float ratio = eyeDistance > 0 ? offset / eyeDistance : 0;
+
+            // Define thresholds for direction
+            System.Drawing.Point lineStart, lineEnd;
+            int lineLength = 30;
+
+            if (ratio < -0.15f) // Looking right
+            {
+                // Draw line on the right side of the face box
+                lineStart = new System.Drawing.Point((int)(x + w), (int)(y + h / 2));
+                lineEnd = new System.Drawing.Point((int)(x + w + lineLength), (int)(y + h / 2));
+            }
+            else if (ratio < -0.05f) // Looking slight right
+            {
+                // Draw line on the bottom right corner of the face box
+                lineStart = new System.Drawing.Point((int)(x + w), (int)(y + h));
+                lineEnd = new System.Drawing.Point((int)(x + w + lineLength), (int)(y + h + lineLength));
+            }
+            else if (ratio <= 0.05f) // Looking forward
+            {
+                // Draw line on the bottom of the face box
+                lineStart = new System.Drawing.Point((int)(x + w / 2), (int)(y + h));
+                lineEnd = new System.Drawing.Point((int)(x + w / 2), (int)(y + h + lineLength));
+            }
+            else if (ratio <= 0.15f) // Looking slight left
+            {
+                // Draw line on the bottom left corner of the face box
+                lineStart = new System.Drawing.Point((int)x, (int)(y + h));
+                lineEnd = new System.Drawing.Point((int)(x - lineLength), (int)(y + h + lineLength));
+            }
+            else // Looking left
+            {
+                // Draw line on the left side of the face box
+                lineStart = new System.Drawing.Point((int)x, (int)(y + h / 2));
+                lineEnd = new System.Drawing.Point((int)(x - lineLength), (int)(y + h / 2));
+            }
+
+            // Draw the direction indicator line
+            CvInvoke.Line(frame, lineStart, lineEnd, color, 3);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error drawing looking direction: {ex.Message}");
         }
     }
 
