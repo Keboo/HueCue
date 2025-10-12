@@ -90,6 +90,24 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _topMost;
 
+    /// <summary>
+    /// Heat map matrix values representing composition quality.
+    /// Values range from 0.0 (bad/red) to 1.0 (good/green).
+    /// Matrix is organized as [row][column] with 9x9 grid.
+    /// </summary>
+    public double[][] HeatMapMatrix { get; } = new[]
+    {
+        new[] { 0.1, 0.5, 0.1, 1.0, 1.0, 1.0, 1.0, 0.5, 0.1 },
+        new[] { 0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2 },
+        new[] { 0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2 },
+        new[] { 0.1, 0.6, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.1 },
+        new[] { 0.1, 0.5, 0.8, 0.8, 0.8, 0.8, 0.8, 0.5, 0.1 },
+        new[] { 0.1, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.2, 0.1 },
+        new[] { 0.0, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.0 },
+        new[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+        new[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }
+    };
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
