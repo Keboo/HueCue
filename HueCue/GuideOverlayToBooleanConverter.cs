@@ -13,7 +13,7 @@ public class GuideOverlayToBooleanConverter : IValueConverter
         }
         return false;
     }
-    
+
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isChecked && parameter is GuideOverlay param)

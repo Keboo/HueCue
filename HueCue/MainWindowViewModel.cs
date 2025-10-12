@@ -21,9 +21,9 @@ namespace HueCue;
 public partial class MainWindowViewModel : ObservableObject
 {
     private VideoCapture? _videoCapture;
-    private DispatcherTimer? _playbackTimer;
-    private DispatcherTimer? _histogramTimer;
-    private DispatcherTimer? _liveStreamTimer;
+    private readonly DispatcherTimer? _playbackTimer;
+    private readonly DispatcherTimer? _histogramTimer;
+    private readonly DispatcherTimer? _liveStreamTimer;
     private Mat? _currentFrame;
     private FaceDetectorYN? _faceDetector;
     private AjaHeloStreamSource? _streamSource;
@@ -90,6 +90,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _topMost;
 
+    [ObservableProperty]
+    private double _windowOpacity = 1.0;
+
     public MainWindowViewModel()
     {
         _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
@@ -118,7 +121,7 @@ public partial class MainWindowViewModel : ObservableObject
                 scoreThreshold: 0.6f,
                 nmsThreshold: 0.3f
             );
-            
+
             FaceDetectionAvailable = true;
             System.Diagnostics.Debug.WriteLine("Face detector initialized successfully");
         }
@@ -165,7 +168,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         // Toggle off if the same overlay is already active, otherwise set the new overlay
         GuideOverlay = GuideOverlay == guideOverlay ? GuideOverlay.None : guideOverlay;
-        
+
         // Update the current frame display
         if (_currentFrame?.IsEmpty == false && HasVideo)
         {
@@ -177,12 +180,18 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleRuleOfThirdsGuide()
     {
         GuideOverlay = GuideOverlay == GuideOverlay.RuleOfThirds ? GuideOverlay.None : GuideOverlay.RuleOfThirds;
-        
+
         // Update the current frame display
         if (_currentFrame?.IsEmpty == false && HasVideo)
         {
             UpdateVideoFrame();
         }
+    }
+
+    [RelayCommand]
+    private void SetWindowOpacity(double opacity)
+    {
+        WindowOpacity = opacity;
     }
 
     private void LoadFile(string filePath)
@@ -292,7 +301,7 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 _currentFrame?.Dispose();
                 _currentFrame = initialFrame;
-                
+
                 CurrentVideoFile = "AJA Helo Live Stream";
                 HasVideo = true;
                 IsLiveStreaming = true;
@@ -446,7 +455,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (_currentFrame?.IsEmpty == false)
         {
             Mat displayFrame = _currentFrame.Clone();
-            
+
             if (FaceDetectionEnabled)
             {
                 displayFrame = DetectAndDrawFaces(displayFrame);
@@ -470,9 +479,9 @@ public partial class MainWindowViewModel : ObservableObject
             var detectionFrame = new Mat();
             var originalSize = frame.Size;
             var targetSize = new System.Drawing.Size(320, 240);
-            
+
             CvInvoke.Resize(frame, detectionFrame, targetSize);
-            
+
             // Update detector input size if needed
             if (_faceDetector.InputSize != targetSize)
             {
@@ -482,7 +491,7 @@ public partial class MainWindowViewModel : ObservableObject
             // Detect faces
             var faces = new Mat();
             int detectionResult = _faceDetector.Detect(detectionFrame, faces);
-            
+
             DetectedFaceCount = 0;
 
             if (detectionResult > 0 && !faces.IsEmpty)
@@ -490,7 +499,7 @@ public partial class MainWindowViewModel : ObservableObject
                 // Get face detection results
                 var faceData = new float[faces.Rows * faces.Cols];
                 faces.CopyTo(faceData);
-                
+
                 var numFaces = faces.Rows;
                 DetectedFaceCount = numFaces;
 
@@ -504,7 +513,7 @@ public partial class MainWindowViewModel : ObservableObject
                     // Each face has 15 values: [x, y, w, h, x_re, y_re, x_le, y_le, x_nt, y_nt, x_rcm, y_rcm, x_lcm, y_lcm, score]
                     // We only need the first 4 for the bounding box
                     int baseIndex = i * 15;
-                    
+
                     if (baseIndex + 3 < faceData.Length)
                     {
                         float x = faceData[baseIndex] * (float)scaleX;
@@ -524,11 +533,11 @@ public partial class MainWindowViewModel : ObservableObject
 
                             // Draw bounding box
                             CvInvoke.Rectangle(frame, rect, color, 2);
-                            
+
                             // Draw confidence score
                             string scoreText = $"{score:F2}";
                             var textPoint = new System.Drawing.Point((int)x, (int)y - 10);
-                            CvInvoke.PutText(frame, scoreText, textPoint, 
+                            CvInvoke.PutText(frame, scoreText, textPoint,
                                 FontFace.HersheySimplex, 0.6, color, 2);
 
                             // Draw facial landmarks if available
@@ -684,7 +693,7 @@ public partial class MainWindowViewModel : ObservableObject
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        
+
         if (e.PropertyName == nameof(HasVideo))
         {
             PlayPauseCommand.NotifyCanExecuteChanged();
