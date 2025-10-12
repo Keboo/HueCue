@@ -14,6 +14,7 @@
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
     <local:GuideOverlayToBooleanConverter x:Key="GuideOverlayToBooleanConverter" />
     <local:ThirdsConverter x:Key="ThirdsConverter" />
+    <local:HeatMapValueToColorConverter x:Key="HeatMapValueToColorConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -184,104 +185,104 @@
           <ColumnDefinition />
         </Grid.ColumnDefinitions>
         
-        <!-- Row 0: [0.1, 0.5, 0.1, 1.0, 1.0, 1.0, 1.0, 0.5, 0.1] -->
-        <Rectangle Grid.Row="0" Grid.Column="0" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="0" Grid.Column="1" Fill="#FF8000"/>
-        <Rectangle Grid.Row="0" Grid.Column="2" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="0" Grid.Column="3" Fill="#00FF00"/>
-        <Rectangle Grid.Row="0" Grid.Column="4" Fill="#00FF00"/>
-        <Rectangle Grid.Row="0" Grid.Column="5" Fill="#00FF00"/>
-        <Rectangle Grid.Row="0" Grid.Column="6" Fill="#00FF00"/>
-        <Rectangle Grid.Row="0" Grid.Column="7" Fill="#FF8000"/>
-        <Rectangle Grid.Row="0" Grid.Column="8" Fill="#FF1A1A"/>
+        <!-- Row 0 -->
+        <Rectangle Grid.Row="0" Grid.Column="0" Fill="{Binding HeatMapMatrix[0][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="1" Fill="{Binding HeatMapMatrix[0][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="2" Fill="{Binding HeatMapMatrix[0][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="3" Fill="{Binding HeatMapMatrix[0][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="4" Fill="{Binding HeatMapMatrix[0][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="5" Fill="{Binding HeatMapMatrix[0][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="6" Fill="{Binding HeatMapMatrix[0][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="7" Fill="{Binding HeatMapMatrix[0][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="0" Grid.Column="8" Fill="{Binding HeatMapMatrix[0][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 1: [0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2] -->
-        <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF3333"/>
-        <Rectangle Grid.Row="1" Grid.Column="1" Fill="#B3FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="2" Fill="#00FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="3" Fill="#00FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="4" Fill="#00FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="5" Fill="#00FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="6" Fill="#00FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="7" Fill="#B3FF00"/>
-        <Rectangle Grid.Row="1" Grid.Column="8" Fill="#FF3333"/>
+        <!-- Row 1 -->
+        <Rectangle Grid.Row="1" Grid.Column="0" Fill="{Binding HeatMapMatrix[1][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="1" Fill="{Binding HeatMapMatrix[1][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="2" Fill="{Binding HeatMapMatrix[1][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="3" Fill="{Binding HeatMapMatrix[1][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="4" Fill="{Binding HeatMapMatrix[1][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="5" Fill="{Binding HeatMapMatrix[1][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="6" Fill="{Binding HeatMapMatrix[1][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="7" Fill="{Binding HeatMapMatrix[1][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="1" Grid.Column="8" Fill="{Binding HeatMapMatrix[1][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 2: [0.2, 0.7, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.2] -->
-        <Rectangle Grid.Row="2" Grid.Column="0" Fill="#FF3333"/>
-        <Rectangle Grid.Row="2" Grid.Column="1" Fill="#B3FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="2" Fill="#00FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="3" Fill="#00FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="4" Fill="#00FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="5" Fill="#00FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="6" Fill="#00FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="7" Fill="#B3FF00"/>
-        <Rectangle Grid.Row="2" Grid.Column="8" Fill="#FF3333"/>
+        <!-- Row 2 -->
+        <Rectangle Grid.Row="2" Grid.Column="0" Fill="{Binding HeatMapMatrix[2][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="1" Fill="{Binding HeatMapMatrix[2][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="2" Fill="{Binding HeatMapMatrix[2][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="3" Fill="{Binding HeatMapMatrix[2][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="4" Fill="{Binding HeatMapMatrix[2][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="5" Fill="{Binding HeatMapMatrix[2][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="6" Fill="{Binding HeatMapMatrix[2][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="7" Fill="{Binding HeatMapMatrix[2][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="2" Grid.Column="8" Fill="{Binding HeatMapMatrix[2][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 3: [0.1, 0.6, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.1] -->
-        <Rectangle Grid.Row="3" Grid.Column="0" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="3" Grid.Column="1" Fill="#99FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="2" Fill="#00FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="3" Fill="#00FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="4" Fill="#00FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="5" Fill="#00FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="6" Fill="#00FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="7" Fill="#99FF00"/>
-        <Rectangle Grid.Row="3" Grid.Column="8" Fill="#FF1A1A"/>
+        <!-- Row 3 -->
+        <Rectangle Grid.Row="3" Grid.Column="0" Fill="{Binding HeatMapMatrix[3][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="1" Fill="{Binding HeatMapMatrix[3][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="2" Fill="{Binding HeatMapMatrix[3][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="3" Fill="{Binding HeatMapMatrix[3][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="4" Fill="{Binding HeatMapMatrix[3][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="5" Fill="{Binding HeatMapMatrix[3][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="6" Fill="{Binding HeatMapMatrix[3][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="7" Fill="{Binding HeatMapMatrix[3][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="3" Grid.Column="8" Fill="{Binding HeatMapMatrix[3][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 4: [0.1, 0.5, 0.8, 0.8, 0.8, 0.8, 0.8, 0.5, 0.1] -->
-        <Rectangle Grid.Row="4" Grid.Column="0" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="4" Grid.Column="1" Fill="#FF8000"/>
-        <Rectangle Grid.Row="4" Grid.Column="2" Fill="#CCFF00"/>
-        <Rectangle Grid.Row="4" Grid.Column="3" Fill="#CCFF00"/>
-        <Rectangle Grid.Row="4" Grid.Column="4" Fill="#CCFF00"/>
-        <Rectangle Grid.Row="4" Grid.Column="5" Fill="#CCFF00"/>
-        <Rectangle Grid.Row="4" Grid.Column="6" Fill="#CCFF00"/>
-        <Rectangle Grid.Row="4" Grid.Column="7" Fill="#FF8000"/>
-        <Rectangle Grid.Row="4" Grid.Column="8" Fill="#FF1A1A"/>
+        <!-- Row 4 -->
+        <Rectangle Grid.Row="4" Grid.Column="0" Fill="{Binding HeatMapMatrix[4][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="1" Fill="{Binding HeatMapMatrix[4][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="2" Fill="{Binding HeatMapMatrix[4][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="3" Fill="{Binding HeatMapMatrix[4][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="4" Fill="{Binding HeatMapMatrix[4][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="5" Fill="{Binding HeatMapMatrix[4][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="6" Fill="{Binding HeatMapMatrix[4][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="7" Fill="{Binding HeatMapMatrix[4][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="4" Grid.Column="8" Fill="{Binding HeatMapMatrix[4][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 5: [0.1, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.2, 0.1] -->
-        <Rectangle Grid.Row="5" Grid.Column="0" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="5" Grid.Column="1" Fill="#FF3333"/>
-        <Rectangle Grid.Row="5" Grid.Column="2" Fill="#FF8000"/>
-        <Rectangle Grid.Row="5" Grid.Column="3" Fill="#FF8000"/>
-        <Rectangle Grid.Row="5" Grid.Column="4" Fill="#FF8000"/>
-        <Rectangle Grid.Row="5" Grid.Column="5" Fill="#FF8000"/>
-        <Rectangle Grid.Row="5" Grid.Column="6" Fill="#FF8000"/>
-        <Rectangle Grid.Row="5" Grid.Column="7" Fill="#FF3333"/>
-        <Rectangle Grid.Row="5" Grid.Column="8" Fill="#FF1A1A"/>
+        <!-- Row 5 -->
+        <Rectangle Grid.Row="5" Grid.Column="0" Fill="{Binding HeatMapMatrix[5][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="1" Fill="{Binding HeatMapMatrix[5][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="2" Fill="{Binding HeatMapMatrix[5][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="3" Fill="{Binding HeatMapMatrix[5][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="4" Fill="{Binding HeatMapMatrix[5][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="5" Fill="{Binding HeatMapMatrix[5][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="6" Fill="{Binding HeatMapMatrix[5][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="7" Fill="{Binding HeatMapMatrix[5][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="5" Grid.Column="8" Fill="{Binding HeatMapMatrix[5][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 6: [0.0, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.0] -->
-        <Rectangle Grid.Row="6" Grid.Column="0" Fill="#FF0000"/>
-        <Rectangle Grid.Row="6" Grid.Column="1" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="6" Grid.Column="2" Fill="#FF3333"/>
-        <Rectangle Grid.Row="6" Grid.Column="3" Fill="#FF3333"/>
-        <Rectangle Grid.Row="6" Grid.Column="4" Fill="#FF3333"/>
-        <Rectangle Grid.Row="6" Grid.Column="5" Fill="#FF3333"/>
-        <Rectangle Grid.Row="6" Grid.Column="6" Fill="#FF3333"/>
-        <Rectangle Grid.Row="6" Grid.Column="7" Fill="#FF1A1A"/>
-        <Rectangle Grid.Row="6" Grid.Column="8" Fill="#FF0000"/>
+        <!-- Row 6 -->
+        <Rectangle Grid.Row="6" Grid.Column="0" Fill="{Binding HeatMapMatrix[6][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="1" Fill="{Binding HeatMapMatrix[6][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="2" Fill="{Binding HeatMapMatrix[6][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="3" Fill="{Binding HeatMapMatrix[6][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="4" Fill="{Binding HeatMapMatrix[6][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="5" Fill="{Binding HeatMapMatrix[6][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="6" Fill="{Binding HeatMapMatrix[6][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="7" Fill="{Binding HeatMapMatrix[6][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="6" Grid.Column="8" Fill="{Binding HeatMapMatrix[6][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 7: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] -->
-        <Rectangle Grid.Row="7" Grid.Column="0" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="1" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="2" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="3" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="4" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="5" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="6" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="7" Fill="#FF0000"/>
-        <Rectangle Grid.Row="7" Grid.Column="8" Fill="#FF0000"/>
+        <!-- Row 7 -->
+        <Rectangle Grid.Row="7" Grid.Column="0" Fill="{Binding HeatMapMatrix[7][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="1" Fill="{Binding HeatMapMatrix[7][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="2" Fill="{Binding HeatMapMatrix[7][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="3" Fill="{Binding HeatMapMatrix[7][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="4" Fill="{Binding HeatMapMatrix[7][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="5" Fill="{Binding HeatMapMatrix[7][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="6" Fill="{Binding HeatMapMatrix[7][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="7" Fill="{Binding HeatMapMatrix[7][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="7" Grid.Column="8" Fill="{Binding HeatMapMatrix[7][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
         
-        <!-- Row 8: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] -->
-        <Rectangle Grid.Row="8" Grid.Column="0" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="1" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="2" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="3" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="4" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="5" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="6" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="7" Fill="#FF0000"/>
-        <Rectangle Grid.Row="8" Grid.Column="8" Fill="#FF0000"/>
+        <!-- Row 8 -->
+        <Rectangle Grid.Row="8" Grid.Column="0" Fill="{Binding HeatMapMatrix[8][0], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="1" Fill="{Binding HeatMapMatrix[8][1], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="2" Fill="{Binding HeatMapMatrix[8][2], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="3" Fill="{Binding HeatMapMatrix[8][3], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="4" Fill="{Binding HeatMapMatrix[8][4], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="5" Fill="{Binding HeatMapMatrix[8][5], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="6" Fill="{Binding HeatMapMatrix[8][6], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="7" Fill="{Binding HeatMapMatrix[8][7], Converter={StaticResource HeatMapValueToColorConverter}}"/>
+        <Rectangle Grid.Row="8" Grid.Column="8" Fill="{Binding HeatMapMatrix[8][8], Converter={StaticResource HeatMapValueToColorConverter}}"/>
       </Grid>
       
       <!-- Histogram overlay -->
