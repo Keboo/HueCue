@@ -15,7 +15,7 @@
     <local:HistogramOverlayToBooleanConverter x:Key="HistogramOverlayToBooleanConverter" />
     <local:GuideOverlayToBooleanConverter x:Key="GuideOverlayToBooleanConverter" />
     <local:ThirdsConverter x:Key="ThirdsConverter" />
-    <local:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter" />
+    <local:OpacityToBooleanConverter x:Key="OpacityToBooleanConverter" />
   </Window.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -61,34 +61,22 @@
                   IsChecked="{Binding TopMost}" />
         <Separator />
         <MenuItem Header="Opacity">
-          <MenuItem Header="100%" 
+          <MenuItem Header="100%" IsCheckable="True"
                     Command="{Binding SetWindowOpacityCommand}"
-                    CommandParameter="1.0">
-            <MenuItem.Icon>
-              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1.0}"/>
-            </MenuItem.Icon>
-          </MenuItem>
-          <MenuItem Header="90%" 
+                    CommandParameter="1.0"
+                    IsChecked="{Binding WindowOpacity, Converter={StaticResource OpacityToBooleanConverter}, ConverterParameter=1.0, Mode=OneWay}" />
+          <MenuItem Header="90%" IsCheckable="True"
                     Command="{Binding SetWindowOpacityCommand}"
-                    CommandParameter="0.9">
-            <MenuItem.Icon>
-              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.9}"/>
-            </MenuItem.Icon>
-          </MenuItem>
-          <MenuItem Header="75%" 
+                    CommandParameter="0.9"
+                    IsChecked="{Binding WindowOpacity, Converter={StaticResource OpacityToBooleanConverter}, ConverterParameter=0.9, Mode=OneWay}" />
+          <MenuItem Header="75%" IsCheckable="True"
                     Command="{Binding SetWindowOpacityCommand}"
-                    CommandParameter="0.75">
-            <MenuItem.Icon>
-              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.75}"/>
-            </MenuItem.Icon>
-          </MenuItem>
-          <MenuItem Header="50%" 
+                    CommandParameter="0.75"
+                    IsChecked="{Binding WindowOpacity, Converter={StaticResource OpacityToBooleanConverter}, ConverterParameter=0.75, Mode=OneWay}" />
+          <MenuItem Header="50%" IsCheckable="True"
                     Command="{Binding SetWindowOpacityCommand}"
-                    CommandParameter="0.5">
-            <MenuItem.Icon>
-              <TextBlock Text="✓" Visibility="{Binding WindowOpacity, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0.5}"/>
-            </MenuItem.Icon>
-          </MenuItem>
+                    CommandParameter="0.5"
+                    IsChecked="{Binding WindowOpacity, Converter={StaticResource OpacityToBooleanConverter}, ConverterParameter=0.5, Mode=OneWay}" />
         </MenuItem>
       </MenuItem>
       <MenuItem Header="_Playback">
