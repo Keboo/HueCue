@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Channels;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -12,25 +13,24 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 
-using Microsoft.Win32;
+using HueCue.Sources;
 
-using Velopack;
+using Microsoft.Win32;
 
 namespace HueCue;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    private VideoCapture? _videoCapture;
-    private readonly DispatcherTimer? _playbackTimer;
-    private readonly DispatcherTimer? _histogramTimer;
-    private readonly DispatcherTimer? _liveStreamTimer;
+    private readonly DispatcherTimer _playbackTimer = new();
+    private readonly Dispatcher _dispatcher;
+    private readonly Channel<Mat> _frameChannel;
     private Mat? _currentFrame;
     private FaceDetectorYN? _faceDetector;
-    private AjaHeloStreamSource? _streamSource;
+    private IStreamSource? _currentStreamSource;
 
     // Define 12 visually distinct colors for face bounding boxes (BGR format for OpenCV)
-    private static readonly MCvScalar[] FaceColors = new[]
-    {
+    private static readonly MCvScalar[] FaceColors =
+    [
         new MCvScalar(0, 255, 0),      // Green
         new MCvScalar(255, 0, 0),      // Blue
         new MCvScalar(0, 0, 255),      // Red
@@ -43,7 +43,7 @@ public partial class MainWindowViewModel : ObservableObject
         new MCvScalar(0, 255, 127),    // Spring Green
         new MCvScalar(255, 255, 255),  // White
         new MCvScalar(64, 224, 208)    // Turquoise
-    };
+    ];
 
     [ObservableProperty]
     private ImageSource? _videoSource;
@@ -58,6 +58,7 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isPlaying;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PlayPauseCommand))]
     private bool _hasVideo;
 
     [ObservableProperty]
@@ -82,9 +83,6 @@ public partial class MainWindowViewModel : ObservableObject
     private HistogramOverlay _overlay = HistogramOverlay.Right;
 
     [ObservableProperty]
-    private bool _isLiveStreaming;
-
-    [ObservableProperty]
     private GuideOverlay _guideOverlay = GuideOverlay.None;
 
     [ObservableProperty]
@@ -93,16 +91,18 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private double _windowOpacity = 1.0;
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(Dispatcher dispatcher)
     {
-        _playbackTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) }; // ~30 FPS
+        _dispatcher = dispatcher;
+        _frameChannel = Channel.CreateBounded<Mat>(new BoundedChannelOptions(1)
+        {
+            SingleReader = true,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+        _ = Task.Run(async () => await ProcessFrameImage(_frameChannel.Reader));
+
         _playbackTimer.Tick += OnPlaybackTimerTick;
-
-        _histogramTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) }; // 1 second interval
-        _histogramTimer.Tick += OnHistogramTimerTick;
-
-        _liveStreamTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) }; // 4 FPS (250ms)
-        _liveStreamTimer.Tick += OnLiveStreamTimerTick;
 
         InitializeFaceDetector();
     }
@@ -137,7 +137,7 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenVideoFile()
+    private async Task OpenVideoFile()
     {
         var openFileDialog = new OpenFileDialog
         {
@@ -147,14 +147,26 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (openFileDialog.ShowDialog() == true)
         {
-            LoadFile(openFileDialog.FileName);
+            await LoadFileAsync(openFileDialog.FileName);
         }
     }
 
     [RelayCommand]
     private async Task LoadFromAjaHelo()
     {
-        await LoadLiveStream();
+        StopVideo();
+
+        Interlocked.Exchange(ref _currentStreamSource, new AjaHeloStreamSource())?.Dispose();
+
+        await StartVideoAsync();
+    }
+
+    [RelayCommand]
+    private async Task LoadFromSubsplash()
+    {
+        StopVideo();
+        Interlocked.Exchange(ref _currentStreamSource, new SubsplashStreamSource())?.Dispose();
+        await StartVideoAsync();
     }
 
     [RelayCommand]
@@ -189,237 +201,184 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SetWindowOpacity(double opacity)
+    private void SetWindowOpacity(string opacity)
     {
-        WindowOpacity = opacity;
+        if (double.TryParse(opacity, out double opacityValue))
+        {
+            opacityValue = Math.Max(0.1, Math.Min(1.0, opacityValue));
+            WindowOpacity = opacityValue;
+        }
     }
 
-    private void LoadFile(string filePath)
+    private async Task LoadFileAsync(string filePath)
     {
+        StopVideo();
+        if (!File.Exists(filePath))
+            return;
         if (IsImageFile(filePath))
         {
-            LoadImageFile(filePath);
+            Interlocked.Exchange(ref _currentStreamSource, new ImageStreamSource(filePath))?.Dispose();
         }
         else
         {
-            LoadVideoFile(filePath);
+            Interlocked.Exchange(ref _currentStreamSource, new VideoFileStreamSource(filePath))?.Dispose();
         }
-    }
+        await StartVideoAsync();
 
-    private static bool IsImageFile(string filePath)
-    {
-        var extension = Path.GetExtension(filePath).ToLowerInvariant();
-        return extension is ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif";
-    }
-
-    private void LoadImageFile(string filePath)
-    {
-        try
+        static bool IsImageFile(string filePath)
         {
-            StopVideo();
-            StopLiveStream();
-
-            if (!File.Exists(filePath))
-                return;
-
-            // Dispose previous video capture if any
-            _videoCapture?.Dispose();
-            _videoCapture = null;
-
-            // Load image directly using OpenCV
-            var imageMat = CvInvoke.Imread(filePath, ImreadModes.AnyColor);
-            if (imageMat?.IsEmpty == false)
-            {
-                _currentFrame?.Dispose();
-                _currentFrame = imageMat;
-
-                CurrentVideoFile = Path.GetFileName(filePath);
-                HasVideo = true;
-
-                UpdateVideoFrame();
-                UpdateHistogram();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to load image: {filePath}");
-            }
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return extension is ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif";
         }
-        catch (Exception ex)
-        {
-            // Log error or show message to user
-            System.Diagnostics.Debug.WriteLine($"Error loading image: {ex.Message}");
-        }
-    }
-
-    private void LoadVideoFile(string filePath)
-    {
-        try
-        {
-            StopVideo();
-            StopLiveStream();
-
-            if (!File.Exists(filePath))
-                return;
-
-            _videoCapture?.Dispose();
-            _videoCapture = new VideoCapture(filePath);
-
-            if (!_videoCapture.IsOpened)
-                return;
-
-            CurrentVideoFile = Path.GetFileName(filePath);
-            HasVideo = true;
-
-            // Load first frame
-            _currentFrame = new Mat();
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
-            {
-                UpdateVideoFrame();
-                UpdateHistogram();
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log error or show message to user
-            System.Diagnostics.Debug.WriteLine($"Error loading video: {ex.Message}");
-        }
-    }
-
-    private async Task LoadLiveStream()
-    {
-        try
-        {
-            StopVideo();
-            StopLiveStream();
-
-            _streamSource?.Dispose();
-            _streamSource = new AjaHeloStreamSource();
-
-            // Try to get initial frame to verify connection
-            var initialFrame = await _streamSource.GetFrameAsync();
-            if (initialFrame != null)
-            {
-                _currentFrame?.Dispose();
-                _currentFrame = initialFrame;
-
-                CurrentVideoFile = "AJA Helo Live Stream";
-                HasVideo = true;
-                IsLiveStreaming = true;
-
-                UpdateVideoFrame();
-                UpdateHistogram();
-
-                // Start live stream timer
-                _liveStreamTimer?.Start();
-                _histogramTimer?.Start();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Failed to connect to AJA Helo stream");
-                CurrentVideoFile = null;
-                HasVideo = false;
-                IsLiveStreaming = false;
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error loading live stream: {ex.Message}");
-            CurrentVideoFile = null;
-            HasVideo = false;
-            IsLiveStreaming = false;
-        }
-    }
-
-    private void StopLiveStream()
-    {
-        _liveStreamTimer?.Stop();
-        IsLiveStreaming = false;
-        _streamSource?.Dispose();
-        _streamSource = null;
     }
 
     [RelayCommand(CanExecute = nameof(CanPlayPause))]
-    private void PlayPause()
+    private async Task PlayPause()
     {
-        if (IsLiveStreaming)
-        {
-            // For live streams, play/pause controls the display timer
-            if (IsPlaying)
-            {
-                _liveStreamTimer?.Stop();
-                _histogramTimer?.Stop();
-                IsPlaying = false;
-            }
-            else
-            {
-                _liveStreamTimer?.Start();
-                _histogramTimer?.Start();
-                IsPlaying = true;
-            }
-        }
-        else if (IsPlaying)
+        if (IsPlaying)
         {
             StopVideo();
         }
         else
         {
-            StartVideo();
+            await StartVideoAsync();
         }
     }
 
     [RelayCommand]
     private void Skip(string seconds)
     {
-        if (_videoCapture?.IsOpened == true &&
-            int.TryParse(seconds, out int intSeconds))
-        {
-            var fps = _videoCapture.Get(CapProp.Fps);
-            var currentFramePos = _videoCapture.Get(CapProp.PosFrames);
-            var newFramePos = currentFramePos + (intSeconds * fps);
-            newFramePos = Math.Max(0, Math.Min(newFramePos, _videoCapture.Get(CapProp.FrameCount) - 1));
-            _videoCapture.Set(CapProp.PosFrames, newFramePos);
-            // Read the new frame
-            _currentFrame = new Mat();
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
-            {
-                UpdateVideoFrame();
-                UpdateHistogram();
-            }
-        }
+        //TODO: Forward to source?
+
+        //if (_videoCapture?.IsOpened == true &&
+        //    int.TryParse(seconds, out int intSeconds))
+        //{
+        //    var fps = _videoCapture.Get(CapProp.Fps);
+        //    var currentFramePos = _videoCapture.Get(CapProp.PosFrames);
+        //    var newFramePos = currentFramePos + (intSeconds * fps);
+        //    newFramePos = Math.Max(0, Math.Min(newFramePos, _videoCapture.Get(CapProp.FrameCount) - 1));
+        //    _videoCapture.Set(CapProp.PosFrames, newFramePos);
+        //    // Read the new frame
+        //    _currentFrame = new Mat();
+        //    if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
+        //    {
+        //        UpdateVideoFrame();
+        //        UpdateHistogram();
+        //    }
+        //}
     }
 
-    private bool CanPlayPause() => HasVideo && (IsLiveStreaming || _videoCapture?.IsOpened == true);
+    private bool CanPlayPause() => HasVideo;
 
-    private void StartVideo()
+    private async ValueTask StartVideoAsync()
     {
-        if (_videoCapture?.IsOpened == true)
+        if (_currentStreamSource is { } streamSource)
         {
+            if (!await streamSource.LoadAsync())
+            {
+                return;
+            }
+
+            HasVideo = true;
+            _playbackTimer.Stop();
+
+            if (streamSource.Fps > 0)
+            {
+                _playbackTimer.Interval = TimeSpan.FromSeconds(1 / streamSource.Fps);
+                _playbackTimer.Start();
+            }
+            else
+            {
+                //Skip the time if the source does not have an FPS
+                await ShowFrameImage(streamSource);
+            }
+
             IsPlaying = true;
-            _playbackTimer?.Start();
-            _histogramTimer?.Start();
         }
+        else
+        {
+            HasVideo = false;
+            IsPlaying = false;
+        }
+
+        //if (_videoCapture?.IsOpened == true)
+        //{
+        //    IsPlaying = true;
+        //    _playbackTimer?.Start();
+        //    _histogramTimer?.Start();
+        //}
     }
 
     private void StopVideo()
     {
         IsPlaying = false;
-        _playbackTimer?.Stop();
-        _histogramTimer?.Stop();
-        _liveStreamTimer?.Stop();
+        _playbackTimer.Stop();
+        //_histogramTimer?.Stop();
+        //_liveStreamTimer?.Stop();
     }
 
-    private void OnPlaybackTimerTick(object? sender, EventArgs e)
+    private async void OnPlaybackTimerTick(object? sender, EventArgs e)
     {
-        if (_videoCapture?.IsOpened == true && _currentFrame != null)
+        if (_currentStreamSource is { } streamSource)
         {
-            if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
+            await ShowFrameImage(streamSource);
+
+            //if (_videoCapture?.IsOpened == true && _currentFrame != null)
+            //{
+            //    if (_videoCapture.Read(_currentFrame) && !_currentFrame.IsEmpty)
+            //    {
+            //        UpdateVideoFrame();
+            //    }
+            //    else
+            //    {
+            //        // End of video, restart from beginning
+            //        _videoCapture.Set(CapProp.PosFrames, 0);
+            //    }
+            //}
+        }
+    }
+
+    private async Task ShowFrameImage(IStreamSource streamSource)
+    {
+        //TODO: this introduces latency
+        using Mat? frame = await streamSource.GetFrameAsync();
+        if (frame?.IsEmpty == false)
+        {
+            //TODO: Needed?
+            Interlocked.Exchange(ref _currentFrame, frame.Clone())?.Dispose();
+            //NB: Used for processing, the clone is disposed by the reader
+            _frameChannel.Writer.TryWrite(frame.Clone());
+            VideoSource = MatToBitmapSource(frame);
+        }
+        else
+        {
+            StopVideo();
+        }
+    }
+
+    private async ValueTask ProcessFrameImage(ChannelReader<Mat> reader)
+    {
+        while (await reader.WaitToReadAsync())
+        {
+            while (reader.TryRead(out Mat? image))
             {
-                UpdateVideoFrame();
-            }
-            else
-            {
-                // End of video, restart from beginning
-                _videoCapture.Set(CapProp.PosFrames, 0);
+                try
+                {
+                    if (Overlay != HistogramOverlay.None)
+                    {
+                        var histogram = CalculateHistogram(image);
+                        HistogramSource = MatToBitmapSource(histogram);
+                    }
+                    if (FaceDetectionEnabled)
+                    {
+                        using var processedFrame = DetectAndDrawFaces(image);
+                        VideoSource = MatToBitmapSource(processedFrame);
+                    }
+                }
+                finally
+                {
+                    image.Dispose();
+                }
             }
         }
     }
@@ -427,27 +386,6 @@ public partial class MainWindowViewModel : ObservableObject
     private void OnHistogramTimerTick(object? sender, EventArgs e)
     {
         UpdateHistogram();
-    }
-
-    private async void OnLiveStreamTimerTick(object? sender, EventArgs e)
-    {
-        if (_streamSource != null && IsLiveStreaming)
-        {
-            try
-            {
-                var newFrame = await _streamSource.GetFrameAsync();
-                if (newFrame != null)
-                {
-                    _currentFrame?.Dispose();
-                    _currentFrame = newFrame;
-                    UpdateVideoFrame();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error getting live stream frame: {ex.Message}");
-            }
-        }
     }
 
     private void UpdateVideoFrame()
@@ -558,7 +496,7 @@ public partial class MainWindowViewModel : ObservableObject
         return frame;
     }
 
-    private void DrawFacialLandmarks(Mat frame, float[] faceData, int baseIndex, double scaleX, double scaleY)
+    private static void DrawFacialLandmarks(Mat frame, float[] faceData, int baseIndex, double scaleX, double scaleY)
     {
         try
         {
@@ -584,8 +522,6 @@ public partial class MainWindowViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine($"Error drawing facial landmarks: {ex.Message}");
         }
     }
-
-
 
     private void UpdateHistogram()
     {
@@ -625,9 +561,9 @@ public partial class MainWindowViewModel : ObservableObject
             var blueHist = new Mat();
 
             // Calculate histograms
-            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[0] }), new int[] { 0 }, null, redHist, new int[] { histSize }, ranges, false);
-            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[1] }), new int[] { 0 }, null, greenHist, new int[] { histSize }, ranges, false);
-            CvInvoke.CalcHist(new VectorOfMat(new Mat[] { channels[2] }), new int[] { 0 }, null, blueHist, new int[] { histSize }, ranges, false);
+            CvInvoke.CalcHist(new VectorOfMat([channels[0]]), [0], null, redHist, [histSize], ranges, false);
+            CvInvoke.CalcHist(new VectorOfMat([channels[1]]), [0], null, greenHist, [histSize], ranges, false);
+            CvInvoke.CalcHist(new VectorOfMat([channels[2]]), [0], null, blueHist, [histSize], ranges, false);
 
             // Normalize histograms
             CvInvoke.Normalize(redHist, redHist, 0, histImage.Rows, NormType.MinMax, DepthType.Cv32F);
@@ -685,9 +621,9 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private static BitmapSource MatToBitmapSource(Mat mat)
+    private BitmapSource MatToBitmapSource(Mat mat)
     {
-        return mat.ToBitmapSource();
+        return _dispatcher.Invoke(mat.ToBitmapSource);
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -703,13 +639,8 @@ public partial class MainWindowViewModel : ObservableObject
     public void Dispose()
     {
         StopVideo();
-        StopLiveStream();
-        _playbackTimer?.Stop();
-        _histogramTimer?.Stop();
-        _liveStreamTimer?.Stop();
-        _videoCapture?.Dispose();
+        _playbackTimer.Stop();
         _currentFrame?.Dispose();
         _faceDetector?.Dispose();
-        _streamSource?.Dispose();
     }
 }
