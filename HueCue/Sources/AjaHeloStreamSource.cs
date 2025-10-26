@@ -6,11 +6,14 @@ using Emgu.CV.Util;
 
 namespace HueCue;
 
-public class AjaHeloStreamSource : IDisposable
+public sealed class AjaHeloStreamSource : IStreamSource
 {
     private readonly HttpClient _httpClient;
     private readonly string _baseUrl;
     private bool _disposed;
+
+    public double Fps { get; } = 2;
+    public string Name { get; } = "AJA Helo Live Stream";
 
     public AjaHeloStreamSource(string ipAddress = "192.168.10.248")
     {

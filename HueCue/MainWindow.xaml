@@ -26,8 +26,9 @@
 
     <Menu>
       <MenuItem Header="_File">
-        <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}"/>
-        <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}"/>
+        <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}" />
+        <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}" />
+        <MenuItem Header="Load from _Subsplash" Command="{Binding LoadFromSubsplashCommand}" />
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
@@ -60,7 +61,8 @@
         <MenuItem Header="Always on Top" IsCheckable="True" 
                   IsChecked="{Binding TopMost}" />
         <Separator />
-        <MenuItem Header="Opacity">
+        <!-- NB Will require custom window chrome to work right -->
+        <!--<MenuItem Header="Opacity">
           <MenuItem Header="100%" IsCheckable="True"
                     Command="{Binding SetWindowOpacityCommand}"
                     CommandParameter="1.0"
@@ -77,7 +79,7 @@
                     Command="{Binding SetWindowOpacityCommand}"
                     CommandParameter="0.5"
                     IsChecked="{Binding WindowOpacity, Converter={StaticResource OpacityToBooleanConverter}, ConverterParameter=0.5, Mode=OneWay}" />
-        </MenuItem>
+        </MenuItem>-->
       </MenuItem>
       <MenuItem Header="_Playback">
         <MenuItem Header="{Binding IsPlaying, Converter={StaticResource PlayPauseTextConverter}}" 
@@ -258,6 +260,8 @@
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  TextWrapping="Wrap"
+                 Grid.RowSpan="2"
+                 Grid.ColumnSpan="2"
                  MaxWidth="400"
                  TextAlignment="Center">
         <TextBlock.Style>

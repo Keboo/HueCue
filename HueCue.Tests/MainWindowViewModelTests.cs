@@ -18,7 +18,6 @@ public partial class MainWindowViewModelTests
         Assert.Null(viewModel.CurrentVideoFile);
         Assert.False(viewModel.IsPlaying);
         Assert.False(viewModel.HasVideo);
-        Assert.False(viewModel.IsLiveStreaming);
         Assert.Equal(HistogramOverlay.Right, viewModel.Overlay);
         Assert.False(viewModel.TopMost);
         Assert.Equal(1.0, viewModel.WindowOpacity);
@@ -171,31 +170,6 @@ public partial class MainWindowViewModelTests
         Assert.True(canExecute);
     }
 
-    [Theory]
-    [InlineData("test.jpg", true)]
-    [InlineData("test.jpeg", true)]
-    [InlineData("test.png", true)]
-    [InlineData("test.bmp", true)]
-    [InlineData("test.tiff", true)]
-    [InlineData("test.tif", true)]
-    [InlineData("test.gif", true)]
-    [InlineData("test.JPG", true)]
-    [InlineData("test.PNG", true)]
-    [InlineData("test.mp4", false)]
-    [InlineData("test.avi", false)]
-    [InlineData("test.txt", false)]
-    [InlineData("test", false)]
-    public void IsImageFile_ReturnsCorrectResult(string fileName, bool expected)
-    {
-        //Arrange & Act
-        // Using reflection to access the private static method
-        var method = typeof(MainWindowViewModel).GetMethod("IsImageFile", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-        bool result = (bool)method!.Invoke(null, new object[] { fileName })!;
-
-        //Assert
-        Assert.Equal(expected, result);
-    }
-
     [Fact]
     public void LoadFile_CallsCorrectMethodBasedOnFileType()
     {
@@ -212,26 +186,12 @@ public partial class MainWindowViewModelTests
         Assert.False(canExecutePlayPause); // Should not be able to play/pause without video
     }
 
-    [Fact]
-    public void SetWindowOpacityCommand_SetsWindowOpacity()
-    {
-        //Arrange
-        AutoMocker mocker = new();
-        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-
-        //Act
-        viewModel.SetWindowOpacityCommand.Execute(0.75);
-
-        //Assert
-        Assert.Equal(0.75, viewModel.WindowOpacity);
-    }
-
     [Theory]
-    [InlineData(1.0)]
-    [InlineData(0.9)]
-    [InlineData(0.75)]
-    [InlineData(0.5)]
-    public void SetWindowOpacityCommand_SetsCorrectOpacityValue(double opacity)
+    [InlineData("1.0")]
+    [InlineData("0.9")]
+    [InlineData("0.75")]
+    [InlineData("0.5")]
+    public void SetWindowOpacityCommand_SetsCorrectOpacityValue(string opacity)
     {
         //Arrange
         AutoMocker mocker = new();
@@ -241,20 +201,6 @@ public partial class MainWindowViewModelTests
         viewModel.SetWindowOpacityCommand.Execute(opacity);
 
         //Assert
-        Assert.Equal(opacity, viewModel.WindowOpacity);
-    }
-
-    [Fact]
-    public void SetWindowOpacityCommand_CanAlwaysExecute()
-    {
-        //Arrange
-        AutoMocker mocker = new();
-        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-
-        //Act
-        bool canExecute = viewModel.SetWindowOpacityCommand.CanExecute(0.5);
-
-        //Assert
-        Assert.True(canExecute);
+        Assert.Equal(double.Parse(opacity), viewModel.WindowOpacity);
     }
 }

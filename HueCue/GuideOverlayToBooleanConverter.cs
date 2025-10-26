@@ -7,11 +7,7 @@ public class GuideOverlayToBooleanConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is GuideOverlay overlay && parameter is GuideOverlay param)
-        {
-            return overlay == param;
-        }
-        return false;
+        return value is GuideOverlay overlay && parameter is GuideOverlay param ? overlay == param : false;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

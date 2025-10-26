@@ -78,7 +78,7 @@ public partial class App : Application
             services.AddSingleton<WeakReferenceMessenger>();
             services.AddSingleton<IMessenger, WeakReferenceMessenger>(provider => provider.GetRequiredService<WeakReferenceMessenger>());
 
-            services.AddSingleton(_ => Current.Dispatcher);
+            services.AddSingleton<IDispatcher, SystemDispatcher>();
 
             services.AddTransient<ISnackbarMessageQueue>(provider =>
             {
