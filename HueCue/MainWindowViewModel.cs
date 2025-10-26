@@ -22,7 +22,7 @@ namespace HueCue;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly DispatcherTimer _playbackTimer = new();
-    private readonly Dispatcher _dispatcher;
+    private readonly IDispatcher _dispatcher;
     private readonly Channel<Mat> _frameChannel;
     private Mat? _currentFrame;
     private FaceDetectorYN? _faceDetector;
@@ -91,8 +91,9 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private double _windowOpacity = 1.0;
 
-    public MainWindowViewModel(Dispatcher dispatcher)
+    public MainWindowViewModel(IDispatcher dispatcher)
     {
+        ArgumentNullException.ThrowIfNull(dispatcher);
         _dispatcher = dispatcher;
         _frameChannel = Channel.CreateBounded<Mat>(new BoundedChannelOptions(1)
         {

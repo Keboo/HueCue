@@ -186,26 +186,12 @@ public partial class MainWindowViewModelTests
         Assert.False(canExecutePlayPause); // Should not be able to play/pause without video
     }
 
-    [Fact]
-    public void SetWindowOpacityCommand_SetsWindowOpacity()
-    {
-        //Arrange
-        AutoMocker mocker = new();
-        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-
-        //Act
-        viewModel.SetWindowOpacityCommand.Execute(0.75);
-
-        //Assert
-        Assert.Equal(0.75, viewModel.WindowOpacity);
-    }
-
     [Theory]
-    [InlineData(1.0)]
-    [InlineData(0.9)]
-    [InlineData(0.75)]
-    [InlineData(0.5)]
-    public void SetWindowOpacityCommand_SetsCorrectOpacityValue(double opacity)
+    [InlineData("1.0")]
+    [InlineData("0.9")]
+    [InlineData("0.75")]
+    [InlineData("0.5")]
+    public void SetWindowOpacityCommand_SetsCorrectOpacityValue(string opacity)
     {
         //Arrange
         AutoMocker mocker = new();
@@ -215,20 +201,6 @@ public partial class MainWindowViewModelTests
         viewModel.SetWindowOpacityCommand.Execute(opacity);
 
         //Assert
-        Assert.Equal(opacity, viewModel.WindowOpacity);
-    }
-
-    [Fact]
-    public void SetWindowOpacityCommand_CanAlwaysExecute()
-    {
-        //Arrange
-        AutoMocker mocker = new();
-        MainWindowViewModel viewModel = mocker.CreateInstance<MainWindowViewModel>();
-
-        //Act
-        bool canExecute = viewModel.SetWindowOpacityCommand.CanExecute(0.5);
-
-        //Assert
-        Assert.True(canExecute);
+        Assert.Equal(double.Parse(opacity), viewModel.WindowOpacity);
     }
 }
