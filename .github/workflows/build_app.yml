@@ -47,7 +47,7 @@ jobs:
           title: 'Code Coverage'
 
       - name: Upload Code Coverage Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CodeCoverage
           path: ${{github.workspace}}/.build/coveragereport/
