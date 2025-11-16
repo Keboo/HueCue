@@ -171,6 +171,14 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task LoadFromObs()
+    {
+        StopVideo();
+        Interlocked.Exchange(ref _currentStreamSource, new ObsStreamSource())?.Dispose();
+        await StartVideoAsync();
+    }
+
+    [RelayCommand]
     private void SetOverlay(HistogramOverlay overlay)
     {
         Overlay = overlay;
