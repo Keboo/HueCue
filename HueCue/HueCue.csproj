@@ -46,6 +46,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Emgu.CV" />
     <PackageReference Include="Emgu.CV.runtime.windows" />
+    <PackageReference Include="obs-websocket-dotnet" />
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="Velopack" />
   </ItemGroup>

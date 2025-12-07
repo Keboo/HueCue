@@ -29,6 +29,7 @@
         <MenuItem Header="_Open Video/Image..." Command="{Binding OpenVideoFileCommand}" />
         <MenuItem Header="Load from _AJA Helo" Command="{Binding LoadFromAjaHeloCommand}" />
         <MenuItem Header="Load from _Subsplash" Command="{Binding LoadFromSubsplashCommand}" />
+        <MenuItem Header="Load from _OBS Studio" Command="{Binding LoadFromObsCommand}" />
         <Separator />
         <MenuItem Header="E_xit" Command="{x:Static ApplicationCommands.Close}"/>
       </MenuItem>
