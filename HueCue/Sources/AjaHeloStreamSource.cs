@@ -15,7 +15,7 @@ public sealed class AjaHeloStreamSource : IStreamSource
     public double Fps { get; } = 2;
     public string Name { get; } = "AJA Helo Live Stream";
 
-    public AjaHeloStreamSource(string ipAddress = "192.168.10.248")
+    public AjaHeloStreamSource(string ipAddress = "192.168.0.59")
     {
         _baseUrl = $"http://{ipAddress}/wall/videofeed.jpg";
         _httpClient = new HttpClient();
