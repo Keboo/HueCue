@@ -21,6 +21,8 @@ export class ObsSource {
     this._port = opts.port ?? '4455';
     this._password = opts.password ?? '';
     this._fps = Math.max(1, Math.min(60, Number(opts.fps ?? 30)));
+    // JPEG quality 1-100; higher = better quality, larger payload
+    this._imageQuality = Math.max(1, Math.min(100, Number(opts.imageQuality ?? 85)));
 
     this._ws = null;
     this._connected = false;
@@ -191,7 +193,7 @@ export class ObsSource {
         imageFormat: 'jpeg',
         imageWidth: 1920,
         imageHeight: 1080,
-        imageCompressionQuality: 80,
+        imageCompressionQuality: this._imageQuality,
       });
 
       const dataUrl = shotData.imageData;

@@ -129,6 +129,7 @@
       guide:         getParam('guide',       'none'),     // none | thirds | heatmap
       faceDetection: getParam('faceDetection', 'true') !== 'false',
       fps:           Number(getParam('fps', '30')),
+      imageQuality:  Number(getParam('imageQuality', '85')),
     };
 
     // ── DOM refs ───────────────────────────────────────────────────────────
@@ -213,10 +214,11 @@
       if (obsSource) obsSource.disconnect();
 
       obsSource = new ObsSource({
-        host:     config.host,
-        port:     config.port,
-        password: config.password,
-        fps:      config.fps,
+        host:         config.host,
+        port:         config.port,
+        password:     config.password,
+        fps:          config.fps,
+        imageQuality: config.imageQuality,
         onStatus: (msg) => setStatus(msg, false),
       });
 

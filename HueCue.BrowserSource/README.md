@@ -57,6 +57,7 @@ All settings are controlled through query-string parameters so you can create pr
 | `guide` | `none` | `none` \| `thirds` \| `heatmap` | Guide overlay type |
 | `faceDetection` | `true` | `true` \| `false` | Enable/disable face detection |
 | `fps` | `30` | 1–60 | Screenshot capture rate |
+| `imageQuality` | `85` | 1–100 | JPEG compression quality (higher = better quality, larger payload) |
 
 **Example URL with all parameters:**
 

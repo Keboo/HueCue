@@ -63,6 +63,7 @@ file:///path/to/HueCue.BrowserSource/index.html?obsHost=localhost&obsPort=4455&o
 | `guide` | `none` | `none` \| `thirds` \| `heatmap` |
 | `faceDetection` | `true` | `true` \| `false` |
 | `fps` | `30` | 1–60 |
+| `imageQuality` | `85` | 1–100 (JPEG quality) |
 
 ### Monitoring scene tip
 

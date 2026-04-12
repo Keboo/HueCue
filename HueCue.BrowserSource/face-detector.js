@@ -135,9 +135,10 @@ export class FaceDetector {
         ctx.fillText(score.toFixed(2), x, y > 16 ? y - 4 : y + 16);
       }
 
-      // Facial keypoints (eyes, nose, mouth, ears)
+      // Facial keypoints (eyes, nose, mouth, ears) – drawn in white for
+      // maximum contrast against any bounding-box colour.
       if (face.keypoints) {
-        ctx.fillStyle = '#0044ff';
+        ctx.fillStyle = '#ffffff';
         for (const kp of face.keypoints) {
           ctx.beginPath();
           ctx.arc(kp.x * scaleX, kp.y * scaleY, 3, 0, Math.PI * 2);
