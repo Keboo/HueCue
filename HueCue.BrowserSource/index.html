@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HueCue – OBS Browser Source</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!--
+    TensorFlow.js + MediaPipe Face Detection (required for face detection only).
+    These are loaded from jsDelivr CDN.  OBS must have internet access the
+    first time so that the model weights can be cached.  Comment out these
+    three lines if you do not need face detection and want fully offline use.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.22.0/dist/tf-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.22.0/dist/tf-backend-webgl.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection@1.0.2/dist/face-detection.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- Rule-of-thirds / custom guide canvas -->
+    <canvas id="guide-canvas" class="guide-overlay"></canvas>
+
+    <!-- Heat-map zone overlay (CSS grid, populated by overlay.js) -->
+    <div id="heatmap-overlay"></div>
+
+    <!-- Face bounding-box canvas -->
+    <canvas id="face-canvas"></canvas>
+
+    <!-- RGB histogram canvas -->
+    <canvas id="histogram-canvas"></canvas>
+
+  </div>
+
+  <!--
+    Settings panel – only visible when NOT running inside OBS (i.e., when
+    window.obsstudio is undefined) so you can preview and configure the
+    overlay in a normal browser.
+  -->
+  <details id="settings-panel">
+    <summary>⚙ HueCue Settings</summary>
+
+    <label>
+      OBS host
+      <input id="cfg-host" type="text" value="localhost" size="14" />
+    </label>
+    <label>
+      OBS port
+      <input id="cfg-port" type="text" value="4455" size="6" />
+    </label>
+    <label>
+      OBS password
+      <input id="cfg-password" type="password" size="12" />
+    </label>
+    <label>
+      Histogram
+      <select id="cfg-histogram">
+        <option value="right">Side-by-side (right)</option>
+        <option value="below">Stacked (below)</option>
+        <option value="none">Hidden</option>
+      </select>
+    </label>
+    <label>
+      Guide overlay
+      <select id="cfg-guide">
+        <option value="none">None</option>
+        <option value="thirds">Rule of Thirds</option>
+        <option value="heatmap">Heat Map</option>
+      </select>
+    </label>
+    <label>
+      Face detection
+      <select id="cfg-face">
+        <option value="true">Enabled</option>
+        <option value="false">Disabled</option>
+      </select>
+    </label>
+    <label>
+      FPS
+      <input id="cfg-fps" type="number" value="30" min="1" max="60" size="4" />
+    </label>
+    <br />
+    <button id="cfg-apply">Apply / Reconnect</button>
+    <p id="cfg-hint" style="margin-top:6px;font-size:11px;color:#aaa;">
+      Copy URL with params for use as OBS Browser Source local file URL.
+    </p>
+  </details>
+
+  <!-- Connection / status indicator -->
+  <div id="status-bar">Initialising…</div>
+
+  <script type="module">
+    import { ObsSource }    from './obs-source.js';
+    import { updateHistogram } from './histogram.js';
+    import { applyGuideMode }  from './overlay.js';
+    import { FaceDetector }    from './face-detector.js';
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    function getParam(name, fallback) {
+      return new URLSearchParams(location.search).get(name) ?? fallback;
+    }
+
+    function setStatus(text, autoHide = false) {
+      const bar = document.getElementById('status-bar');
+      bar.textContent = text;
+      bar.classList.remove('hidden');
+      if (autoHide) {
+        setTimeout(() => bar.classList.add('hidden'), 3000);
+      }
+    }
+
+    // Resize canvas to match its CSS-rendered size
+    function fitCanvas(canvas) {
+      canvas.width  = canvas.offsetWidth  || canvas.clientWidth  || 1920;
+      canvas.height = canvas.offsetHeight || canvas.clientHeight || 1080;
+    }
+
+    // ── Read configuration ─────────────────────────────────────────────────
+    // URL params take precedence; the settings panel lets you tweak them
+    // interactively in a browser preview.
+
+    let config = {
+      host:          getParam('obsHost',     'localhost'),
+      port:          getParam('obsPort',     '4455'),
+      password:      getParam('obsPassword', ''),
+      histogram:     getParam('histogram',   'right'),    // right | below | none
+      guide:         getParam('guide',       'none'),     // none | thirds | heatmap
+      faceDetection: getParam('faceDetection', 'true') !== 'false',
+      fps:           Number(getParam('fps', '30')),
+    };
+
+    // ── DOM refs ───────────────────────────────────────────────────────────
+
+    const guideCanvas     = document.getElementById('guide-canvas');
+    const heatmapOverlay  = document.getElementById('heatmap-overlay');
+    const faceCanvas      = document.getElementById('face-canvas');
+    const histogramCanvas = document.getElementById('histogram-canvas');
+    const settingsPanel   = document.getElementById('settings-panel');
+
+    // ── Settings panel: show only outside OBS ─────────────────────────────
+
+    const insideObs = typeof window.obsstudio !== 'undefined';
+    settingsPanel.style.display = insideObs ? 'none' : 'block';
+
+    if (!insideObs) {
+      // Pre-fill form with current config
+      document.getElementById('cfg-host').value      = config.host;
+      document.getElementById('cfg-port').value      = config.port;
+      document.getElementById('cfg-password').value  = config.password;
+      document.getElementById('cfg-histogram').value = config.histogram;
+      document.getElementById('cfg-guide').value     = config.guide;
+      document.getElementById('cfg-face').value      = String(config.faceDetection);
+      document.getElementById('cfg-fps').value       = String(config.fps);
+    }
+
+    // ── Apply guide overlay (static; doesn't need frames) ─────────────────
+
+    function applyCurrentGuide() {
+      fitCanvas(guideCanvas);
+      applyGuideMode(config.guide, guideCanvas, heatmapOverlay);
+    }
+
+    applyCurrentGuide();
+
+    window.addEventListener('resize', () => {
+      applyCurrentGuide();
+      fitCanvas(histogramCanvas);
+      fitCanvas(faceCanvas);
+    });
+
+    // ── Histogram canvas positioning ───────────────────────────────────────
+
+    function applyHistogramPosition() {
+      histogramCanvas.className = '';
+      if (config.histogram === 'right') {
+        histogramCanvas.classList.add('position-right');
+        histogramCanvas.style.display = 'block';
+      } else if (config.histogram === 'below') {
+        histogramCanvas.classList.add('position-below');
+        histogramCanvas.style.display = 'block';
+      } else {
+        histogramCanvas.style.display = 'none';
+      }
+      fitCanvas(histogramCanvas);
+    }
+
+    applyHistogramPosition();
+
+    // ── Face detector ──────────────────────────────────────────────────────
+
+    const faceDetector = new FaceDetector();
+
+    async function initFaceDetector() {
+      if (!config.faceDetection) return;
+      setStatus('Loading face detection model…');
+      const ok = await faceDetector.load();
+      if (ok) {
+        setStatus('Face detection ready', true);
+      } else {
+        setStatus('Face detection unavailable – continuing without it', true);
+      }
+    }
+
+    await initFaceDetector();
+
+    // ── OBS source ─────────────────────────────────────────────────────────
+
+    let obsSource = null;
+
+    async function connect() {
+      if (obsSource) obsSource.disconnect();
+
+      obsSource = new ObsSource({
+        host:     config.host,
+        port:     config.port,
+        password: config.password,
+        fps:      config.fps,
+        onStatus: (msg) => setStatus(msg, false),
+      });
+
+      try {
+        await obsSource.connect();
+        setStatus('Streaming…', true);
+      } catch (err) {
+        setStatus(`Connection failed: ${err.message}`);
+      }
+    }
+
+    // ── Frame event handler ────────────────────────────────────────────────
+
+    document.addEventListener('obsframe', async (evt) => {
+      const { imageBitmap } = evt.detail;
+
+      // Histogram
+      if (config.histogram !== 'none') {
+        updateHistogram(histogramCanvas, imageBitmap);
+      }
+
+      // Face detection
+      if (config.faceDetection && faceDetector.isAvailable) {
+        fitCanvas(faceCanvas);
+        await faceDetector.detectAndDraw(faceCanvas, imageBitmap);
+      } else {
+        // Clear old drawings if detection was just disabled
+        const ctx = faceCanvas.getContext('2d');
+        ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+      }
+
+      imageBitmap.close();
+    });
+
+    // ── Settings panel – Apply button ──────────────────────────────────────
+
+    document.getElementById('cfg-apply')?.addEventListener('click', () => {
+      config.host          = document.getElementById('cfg-host').value.trim();
+      config.port          = document.getElementById('cfg-port').value.trim();
+      config.password      = document.getElementById('cfg-password').value;
+      config.histogram     = document.getElementById('cfg-histogram').value;
+      config.guide         = document.getElementById('cfg-guide').value;
+      config.faceDetection = document.getElementById('cfg-face').value === 'true';
+      config.fps           = Number(document.getElementById('cfg-fps').value) || 30;
+
+      applyCurrentGuide();
+      applyHistogramPosition();
+      connect();
+
+      // Show generated URL for copy-paste into OBS
+      const params = new URLSearchParams({
+        obsHost:       config.host,
+        obsPort:       config.port,
+        obsPassword:   config.password,
+        histogram:     config.histogram,
+        guide:         config.guide,
+        faceDetection: String(config.faceDetection),
+        fps:           String(config.fps),
+      });
+      const hint = document.getElementById('cfg-hint');
+      hint.textContent = `URL: ${location.origin}${location.pathname}?${params}`;
+    });
+
+    // ── Start ──────────────────────────────────────────────────────────────
+
+    await connect();
+  </script>
+</body>
+</html>
