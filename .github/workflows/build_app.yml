@@ -67,6 +67,13 @@ jobs:
         run: |
           dotnet vpk publish --api-key ${{ secrets.VELOPACK_API_KEY }} --outputDir ${{github.workspace}}/Releases --waitForLive
 
+      - name: Upload Browser Source artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: BrowserSource
+          path: ${{github.workspace}}/HueCue.BrowserSource/
+          if-no-files-found: error
+
       - name: Create release tag
         run: |
           git config --global user.name "github-actions[bot]"
