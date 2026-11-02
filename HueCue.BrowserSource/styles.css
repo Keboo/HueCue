@@ -1,0 +1,161 @@
+/* HueCue Browser Source styles
+ * The body background must stay transparent so OBS composites the overlay
+ * over the scene content cleanly.
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* ─── Layout container ───────────────────────────────────────────────────── */
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Guide overlays ────────────────────────────────────────────────────── */
+
+.guide-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Rule-of-thirds lines drawn via canvas */
+#guide-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ─── Heat-map overlay ───────────────────────────────────────────────────── */
+
+#heatmap-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  pointer-events: none;
+}
+
+#heatmap-overlay .hm-cell {
+  opacity: 0.3;
+}
+
+/* Row 0 */
+#heatmap-overlay .hm-0-0 { background: #00b400; }
+#heatmap-overlay .hm-0-1 { background: #00ff00; }
+#heatmap-overlay .hm-0-2 { background: #00b400; }
+/* Row 1 */
+#heatmap-overlay .hm-1-0 { background: #c8c800; }
+#heatmap-overlay .hm-1-1 { background: #007800; }
+#heatmap-overlay .hm-1-2 { background: #c8c800; }
+/* Row 2 — spans all three columns via JS */
+#heatmap-overlay .hm-2   { background: #ff0000; grid-column: 1 / -1; }
+
+/* ─── Histogram panel ────────────────────────────────────────────────────── */
+
+#histogram-canvas {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Position variants set by JS */
+#histogram-canvas.position-right {
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 25%;
+}
+
+#histogram-canvas.position-below {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25%;
+}
+
+/* ─── Face-detection canvas ─────────────────────────────────────────────── */
+
+#face-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ─── Settings panel (shown only outside OBS, for dev/preview) ───────────── */
+
+#settings-panel {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  z-index: 9999;
+  max-width: 320px;
+}
+
+#settings-panel summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+#settings-panel label {
+  display: block;
+  margin-top: 4px;
+}
+
+#settings-panel select,
+#settings-panel input {
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 3px;
+  padding: 2px 4px;
+  margin-left: 4px;
+}
+
+/* ─── Status indicator ───────────────────────────────────────────────────── */
+
+#status-bar {
+  position: fixed;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #ccc;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  z-index: 9999;
+  transition: opacity 0.5s;
+}
+
+#status-bar.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
